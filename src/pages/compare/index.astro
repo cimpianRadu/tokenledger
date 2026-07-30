@@ -1,0 +1,137 @@
+---
+import Base from '../../layouts/Base.astro';
+import {
+  notableModels,
+  pairSlug,
+  providers,
+  formatPrice,
+  seoDescription,
+  updatedAt,
+} from '../../lib/models';
+
+const list = notableModels(3);
+
+// Group by provider so the index reads as a directory rather than a wall.
+const groups = providers
+  .map((p) => ({
+    provider: p,
+    models: list.filter((m) => m.provider === p.key),
+  }))
+  .filter((g) => g.models.length > 0);
+
+const pairsFor = (slug: string) =>
+  list
+    .filter((m) => m.slug !== slug)
+    .map((other) => ({
+      other,
+      href: `/compare/${pairSlug(list.find((m) => m.slug === slug)!, other)}`,
+    }));
+
+const total = (list.length * (list.length - 1)) / 2;
+---
+
+<Base
+  title={`Compare LLM API prices — ${total} head-to-head pages`}
+  description={seoDescription(`Side-by-side API price comparisons for ${list.length} current models across ${groups.length} providers. Input, cached and output rates per million tokens, synced ${updatedAt}.`)}
+  breadcrumbs={[['Compare', '/compare/']]}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'LLM API price comparisons',
+    description: `Head-to-head API price comparisons for ${list.length} current models.`,
+    numberOfItems: total,
+  }}
+>
+  <section class="wrap page">
+    <span class="eyebrow">{total} comparisons · {list.length} models · synced {updatedAt}</span>
+    <h1>Compare LLM API prices</h1>
+    <p class="lede">
+      Every current model paired against every other. Pick a model to see what
+      it costs against the rest.
+    </p>
+
+    {groups.map((g) => (
+      <section class="group">
+        <h2>{g.provider.brand}</h2>
+        {g.models.map((m) => (
+          <div class="row">
+            <h3>
+              <a href={`/models/${m.slug}`}>{m.name}</a>
+              <span class="row__price mono">{formatPrice(m.input)} / 1M in</span>
+            </h3>
+            <ul class="pairs">
+              {pairsFor(m.slug).map(({ other, href }) => (
+                <li>
+                  <a href={href}>vs {other.name}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </section>
+    ))}
+  </section>
+</Base>
+
+<style>
+  .page {
+    padding-top: 3rem;
+  }
+  .lede {
+    font-size: 1.02rem;
+    color: var(--ink-soft);
+    margin: 0.9rem 0 2.5rem;
+  }
+  .group {
+    margin-bottom: 2.5rem;
+  }
+  .group h2 {
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--rule-strong);
+    margin-bottom: 1.25rem;
+  }
+  .row {
+    margin-bottom: 1.5rem;
+  }
+  .row h3 {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+  .row h3 a {
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .row h3 a:hover {
+    text-decoration: underline;
+  }
+  .row__price {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--ink-faint);
+  }
+  .pairs {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding: 0;
+    margin: 0;
+  }
+  .pairs a {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-decoration: none;
+    padding: 0.25em 0.55em;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    color: var(--ink-soft);
+  }
+  .pairs a:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+</style>

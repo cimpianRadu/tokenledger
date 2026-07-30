@@ -1,0 +1,216 @@
+---
+import Base from '../../layouts/Base.astro';
+import {
+  providers,
+  modelsFor,
+  formatPrice,
+  formatContext,
+  seoTitle,
+  seoDescription,
+  updatedAt,
+} from '../../lib/models';
+
+export function getStaticPaths() {
+  return providers.map((p) => ({
+    params: { provider: p.slug },
+    props: { provider: p },
+  }));
+}
+
+const { provider } = Astro.props;
+const list = modelsFor(provider.key).sort((a, b) => a.input - b.input);
+const cheapest = list[0];
+const dearest = list[list.length - 1];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: `How much does the ${provider.brand} API cost?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `${provider.brand} (${provider.name}) lists ${list.length} chat models. The cheapest is ${cheapest.name} at ${formatPrice(cheapest.input)} per million input tokens and ${formatPrice(cheapest.output)} per million output tokens. The most expensive input rate is ${dearest.name} at ${formatPrice(dearest.input)}.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: `Are ${provider.brand} token counts exact on this page?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text:
+          provider.counting === 'exact'
+            ? `Yes. ${provider.name} publishes its tokenizer, so counts are produced by running the real encoder on your text.`
+            : `No. ${provider.name} does not publish a tokenizer, so counts are approximated from a published ratio and labelled as estimates rather than presented as exact.`,
+      },
+    },
+  ],
+};
+---
+
+<Base
+  title={seoTitle(
+    `${provider.brand} API pricing`,
+    `all ${list.length} models per 1M tokens`
+  )}
+  description={seoDescription(`Current ${provider.brand} API pricing from ${provider.name}: ${list.length} models with input, cached and output rates per million tokens. Synced ${updatedAt}.`)}
+  jsonLd={jsonLd}
+ breadcrumbs={[[`${provider.brand} pricing`, `/pricing/${provider.slug}`]]}>
+  <section class="wrap page">
+    <span class="eyebrow">Provider · {list.length} models · synced {updatedAt}</span>
+    <h1>{provider.brand} API pricing</h1>
+    <p class="lede">
+      Every {provider.brand} model {provider.brand !== provider.name && `from ${provider.name} `}with a published rate,
+      sorted cheapest first. Prices are USD per million tokens.
+    </p>
+
+    <dl class="facts">
+      <div>
+        <dt>Cheapest input</dt>
+        <dd class="mono">{formatPrice(cheapest.input)}</dd>
+        <dd class="facts__who">{cheapest.name}</dd>
+      </div>
+      <div>
+        <dt>Dearest input</dt>
+        <dd class="mono">{formatPrice(dearest.input)}</dd>
+        <dd class="facts__who">{dearest.name}</dd>
+      </div>
+      <div>
+        <dt>Token counting</dt>
+        <dd>
+          <span class={`badge badge--${provider.counting}`}>{provider.counting}</span>
+        </dd>
+        <dd class="facts__who">
+          {provider.counting === 'exact'
+            ? 'public tokenizer'
+            : 'no public tokenizer'}
+        </dd>
+      </div>
+    </dl>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Model</th>
+            <th scope="col" class="num">Input</th>
+            <th scope="col" class="num">Cached</th>
+            <th scope="col" class="num">Output</th>
+            <th scope="col" class="num">Context</th>
+            <th scope="col" class="num">Long-ctx in</th>
+          </tr>
+        </thead>
+        <tbody>
+          {list.map((m) => (
+            <tr>
+              <td>
+                <a href={`/models/${m.slug}`}>{m.name}</a>
+                {m.deprecatedOn && <span class="dep" title={`Deprecates ${m.deprecatedOn}`}>dep</span>}
+              </td>
+              <td class="num">{formatPrice(m.input)}</td>
+              <td class="num">{formatPrice(m.cachedInput)}</td>
+              <td class="num">{formatPrice(m.output)}</td>
+              <td class="num">{formatContext(m.contextWindow)}</td>
+              <td class="num">
+                {m.tier ? (
+                  <span class="tier-rate" title={`Above ${formatContext(m.tier.threshold)} tokens`}>
+                    {formatPrice(m.tier.input)}
+                  </span>
+                ) : (
+                  '—'
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="sub">Other providers</h2>
+    <ul class="chips">
+      {providers
+        .filter((p) => p.key !== provider.key)
+        .map((p) => (
+          <li>
+            <a href={`/pricing/${p.slug}`}>{p.name} ({p.modelCount})</a>
+          </li>
+        ))}
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .page {
+    padding-top: 3rem;
+  }
+  .lede {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    margin-top: 0.9rem;
+  }
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    margin: 2rem 0 2.5rem;
+    padding: 1.25rem 0;
+    border-block: 1px solid var(--rule);
+  }
+  .facts dt {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .facts dd {
+    margin: 0.3rem 0 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+  .facts__who {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--ink-faint);
+    font-family: var(--font-mono);
+  }
+  .tier-rate {
+    color: var(--dear);
+  }
+  .dep {
+    margin-left: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    padding: 0.1em 0.3em;
+  }
+  .sub {
+    margin-top: 3rem;
+  }
+  .chips {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .chips a {
+    display: inline-block;
+    font-size: 0.85rem;
+    text-decoration: none;
+    padding: 0.3em 0.7em;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    color: var(--ink-soft);
+  }
+  .chips a:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+</style>

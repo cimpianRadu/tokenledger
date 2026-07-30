@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import { providers, models } from '../lib/models';
+---
+
+<Base
+  title="Page not found — Token Ledger"
+  description="That page doesn't exist. Browse current LLM API pricing by provider or compare models head to head."
+>
+  <section class="wrap page">
+    <span class="eyebrow">404</span>
+    <h1>That page doesn't exist</h1>
+    <p class="lede">
+      Model names change often — the one you followed may have been folded into
+      an alias. Start from a provider or the full price list.
+    </p>
+
+    <ul class="chips">
+      <li><a href="/">Token counter</a></li>
+      <li><a href="/models">All {models.length} models</a></li>
+      <li><a href="/compare/">Compare models</a></li>
+      {providers.map((p) => (
+        <li><a href={`/pricing/${p.slug}`}>{p.brand} pricing</a></li>
+      ))}
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .page {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+  .lede {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    margin: 1rem 0 2rem;
+  }
+  .chips {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .chips a {
+    display: inline-block;
+    font-size: 0.88rem;
+    text-decoration: none;
+    padding: 0.35em 0.75em;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    color: var(--ink-soft);
+  }
+  .chips a:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+</style>

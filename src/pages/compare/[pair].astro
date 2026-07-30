@@ -1,0 +1,197 @@
+---
+import Base from '../../layouts/Base.astro';
+import {
+  notableModels,
+  pairSlug,
+  formatPrice,
+  formatContext,
+  seoTitle,
+  seoDescription,
+  updatedAt,
+} from '../../lib/models';
+import type { Model } from '../../lib/models';
+
+export function getStaticPaths() {
+  const list = notableModels(3);
+  const seen = new Set<string>();
+  const paths = [];
+
+  for (const a of list) {
+    for (const b of list) {
+      if (a.slug === b.slug) continue;
+      const slug = pairSlug(a, b);
+      if (seen.has(slug)) continue;
+      seen.add(slug);
+      // Order the pair deterministically so the page and its URL agree.
+      const [first, second] =
+        a.slug < b.slug ? [a, b] : [b, a];
+      paths.push({ params: { pair: slug }, props: { a: first, b: second } });
+    }
+  }
+  return paths;
+}
+
+const { a, b } = Astro.props as { a: Model; b: Model };
+
+function verdict(x: Model, y: Model): string {
+  const ratio = y.input / x.input;
+  if (ratio >= 1.15)
+    return `${x.name} is ${ratio.toFixed(1)}× cheaper on input than ${y.name}.`;
+  if (ratio <= 0.87)
+    return `${y.name} is ${(1 / ratio).toFixed(1)}× cheaper on input than ${x.name}.`;
+  return `${x.name} and ${y.name} are priced within 15% of each other on input.`;
+}
+
+const cheaperIn = a.input <= b.input ? a : b;
+const cheaperOut = a.output <= b.output ? a : b;
+const biggerCtx =
+  (a.contextWindow ?? 0) >= (b.contextWindow ?? 0) ? a : b;
+
+/** Neighbouring pairs, so no comparison page is a dead end for a crawler. */
+const pool = notableModels(3);
+const related = pool
+  .filter((m) => m.slug !== a.slug && m.slug !== b.slug)
+  .slice(0, 8)
+  .flatMap((m) => [
+    { slug: pairSlug(a, m), label: `${a.name} vs ${m.name}` },
+    { slug: pairSlug(b, m), label: `${b.name} vs ${m.name}` },
+  ])
+  .slice(0, 10);
+
+const rows: Array<[string, string, string]> = [
+  ['Input / 1M', formatPrice(a.input), formatPrice(b.input)],
+  ['Cached input / 1M', formatPrice(a.cachedInput), formatPrice(b.cachedInput)],
+  ['Output / 1M', formatPrice(a.output), formatPrice(b.output)],
+  ['Context window', formatContext(a.contextWindow), formatContext(b.contextWindow)],
+  ['Max output', formatContext(a.maxOutput), formatContext(b.maxOutput)],
+  ['Provider', a.providerName, b.providerName],
+  ['Vision', a.vision ? 'Yes' : 'No', b.vision ? 'Yes' : 'No'],
+  ['Tool calling', a.functionCalling ? 'Yes' : 'No', b.functionCalling ? 'Yes' : 'No'],
+  ['Token count', a.counting, b.counting],
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: `Is ${a.name} or ${b.name} cheaper?`,
+      acceptedAnswer: { '@type': 'Answer', text: verdict(a, b) },
+    },
+  ],
+};
+---
+
+<Base
+  title={seoTitle(`${a.name} vs ${b.name}`, 'pricing compared', 'which is cheaper?')}
+  description={seoDescription(`${a.name} vs ${b.name} API pricing. ${verdict(a, b)} Rates per million tokens, synced ${updatedAt}.`)}
+  jsonLd={jsonLd}
+ breadcrumbs={[['Compare', '/compare/'], [`${a.name} vs ${b.name}`, `/compare/${pairSlug(a, b)}`]]}>
+  <section class="wrap page">
+    <span class="eyebrow">{a.providerName} vs {b.providerName} · synced {updatedAt}</span>
+    <h1>{a.name} vs {b.name}</h1>
+    <p class="verdict">{verdict(a, b)}</p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col" class="num">{a.name}</th>
+            <th scope="col" class="num">{b.name}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(([label, left, right]) => (
+            <tr>
+              <td>{label}</td>
+              <td class="num">{left}</td>
+              <td class="num">{right}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="sub">Which to pick</h2>
+    <ul class="takeaways">
+      <li>Cheaper input: <strong>{cheaperIn.name}</strong></li>
+      <li>Cheaper output: <strong>{cheaperOut.name}</strong></li>
+      <li>Larger context: <strong>{biggerCtx.name}</strong></li>
+    </ul>
+    <p class="caveat">
+      List price is not production cost. Output length, cache hit rate, retries
+      and task quality move the real number more than the headline rate does —
+      price your own prompt on the <a href="/">token ledger</a> before deciding.
+    </p>
+
+    <h2 class="sub">Related comparisons</h2>
+    <ul class="related">
+      {related.map((r) => (
+        <li><a href={`/compare/${r.slug}`}>{r.label}</a></li>
+      ))}
+    </ul>
+
+    <p class="links">
+      <a href={`/models/${a.slug}`}>{a.name} detail</a> ·
+      <a href={`/models/${b.slug}`}>{b.name} detail</a> ·
+      <a href={`/pricing/${a.providerSlug}`}>All {a.providerName} pricing</a> ·
+      <a href="/compare/">All comparisons</a>
+    </p>
+  </section>
+</Base>
+
+<style>
+  .page {
+    padding-top: 3rem;
+  }
+  .verdict {
+    font-size: 1.15rem;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 1rem 0 2rem;
+    max-width: 52ch;
+  }
+  .sub {
+    margin-top: 3rem;
+  }
+  .takeaways {
+    margin: 1rem 0 1.5rem;
+    padding-left: 1.1rem;
+  }
+  .takeaways li {
+    margin-bottom: 0.3rem;
+  }
+  .caveat {
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+  }
+  .related {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .related a {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    text-decoration: none;
+    padding: 0.25em 0.6em;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    color: var(--ink-soft);
+  }
+  .related a:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+  .links {
+    margin-top: 2.5rem;
+    font-size: 0.9rem;
+    color: var(--ink-faint);
+  }
+</style>

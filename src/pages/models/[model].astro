@@ -1,0 +1,293 @@
+---
+import Base from '../../layouts/Base.astro';
+import {
+  models,
+  notableModels,
+  pairSlug,
+  formatPrice,
+  formatContext,
+  seoTitle,
+  seoDescription,
+  updatedAt,
+} from '../../lib/models';
+import type { Model } from '../../lib/models';
+
+export function getStaticPaths() {
+  return models.map((m) => ({ params: { model: m.slug }, props: { model: m } }));
+}
+
+const { model } = Astro.props as { model: Model };
+
+// Nearest priced neighbours make the most useful internal links: they are the
+// models a reader is actually choosing between.
+const rivals = models
+  .filter((m) => m.slug !== model.slug)
+  .sort(
+    (x, y) =>
+      Math.abs(x.input - model.input) - Math.abs(y.input - model.input)
+  )
+  .slice(0, 6);
+
+const pool = notableModels(3);
+const comparable = new Set(pool.map((m) => m.slug));
+/** All pairs this model belongs to — without these, most compare pages are orphans. */
+const allPairs = comparable.has(model.slug)
+  ? pool
+      .filter((m) => m.slug !== model.slug)
+      .map((m) => ({ other: m, href: `/compare/${pairSlug(model, m)}` }))
+  : [];
+const cost1k = (model.input * 1000) / 1_000_000;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: model.name,
+  brand: { '@type': 'Brand', name: model.providerName },
+  offers: {
+    '@type': 'Offer',
+    priceCurrency: 'USD',
+    price: model.input,
+    description: 'USD per million input tokens',
+  },
+};
+---
+
+<Base
+  title={seoTitle(
+    `${model.name} API pricing`,
+    `${formatPrice(model.input)} in / ${formatPrice(model.output)} out per 1M`
+  )}
+  description={seoDescription(`${model.name} API pricing: ${formatPrice(model.input)} per million input tokens, ${formatPrice(model.output)} per million output, ${formatContext(model.contextWindow)} context. From ${model.providerName}, synced ${updatedAt}.`)}
+  jsonLd={jsonLd}
+ breadcrumbs={[['Models', '/models'], [model.name, `/models/${model.slug}`]]}>
+  <section class="wrap page">
+    <span class="eyebrow">
+      <a href={`/pricing/${model.providerSlug}`}>{model.providerName}</a> · synced {updatedAt}
+    </span>
+    <h1>{model.name}</h1>
+
+    <dl class="facts">
+      <div>
+        <dt>Input / 1M</dt>
+        <dd class="mono">{formatPrice(model.input)}</dd>
+      </div>
+      <div>
+        <dt>Output / 1M</dt>
+        <dd class="mono">{formatPrice(model.output)}</dd>
+      </div>
+      <div>
+        <dt>Cached input</dt>
+        <dd class="mono">{formatPrice(model.cachedInput)}</dd>
+      </div>
+      <div>
+        <dt>Context</dt>
+        <dd class="mono">{formatContext(model.contextWindow)}</dd>
+      </div>
+    </dl>
+
+    <p class="plain">
+      A 1,000-token prompt costs <strong class="mono">${cost1k.toFixed(5)}</strong> to
+      send. Token counts for {model.providerName} models are
+      <span class={`badge badge--${model.counting}`}>{model.counting}</span>
+      {model.counting === 'exact'
+        ? ' — run through the published tokenizer.'
+        : ' — approximated, because this family has no public tokenizer.'}
+    </p>
+
+    <ul class="caps">
+      {model.vision && <li>Vision</li>}
+      {model.functionCalling && <li>Tool calling</li>}
+      {model.reasoning && <li>Reasoning</li>}
+      {model.maxOutput && <li>Max output {formatContext(model.maxOutput)}</li>}
+    </ul>
+
+    {model.tier && (
+      <div class="tier">
+        <h2 class="sub">Long-context rate</h2>
+        <p>
+          Past <strong class="mono">{formatContext(model.tier.threshold)}</strong> tokens
+          in a single request, {model.name} switches to
+          <strong class="mono"> {formatPrice(model.tier.input)}</strong> input and
+          <strong class="mono"> {formatPrice(model.tier.output)}</strong> output per
+          million — {model.tier.input && model.input
+            ? `${(model.tier.input / model.input).toFixed(1)}× the base input rate`
+            : 'a higher rate'}. Most calculators quote only the base figure.
+        </p>
+      </div>
+    )}
+
+    {model.cacheWrite && (
+      <p class="plain">
+        Writing to the cache costs <strong class="mono">{formatPrice(model.cacheWrite)}</strong>
+        {model.cacheWrite1h && (
+          <> per million at the 5-minute TTL, <strong class="mono">{formatPrice(model.cacheWrite1h)}</strong> at one hour</>
+        )}. Reads are <strong class="mono">{formatPrice(model.cachedInput)}</strong>.
+      </p>
+    )}
+
+    {model.deprecatedOn && (
+      <p class="deprecated">
+        Scheduled for deprecation on <strong class="mono">{model.deprecatedOn}</strong>.
+        Plan a migration before then.
+      </p>
+    )}
+
+    {model.snapshots && model.snapshots.length > 0 && (
+      <p class="snapshots">
+        Pinned versions at the same rate:
+        {' '}
+        <span class="mono">{model.snapshots.join(', ')}</span>
+      </p>
+    )}
+
+    <h2 class="sub">Priced closest to this</h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Model</th>
+            <th scope="col">Provider</th>
+            <th scope="col" class="num">Input</th>
+            <th scope="col" class="num">Output</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {rivals.map((r) => (
+            <tr>
+              <td><a href={`/models/${r.slug}`}>{r.name}</a></td>
+              <td>{r.providerName}</td>
+              <td class="num">{formatPrice(r.input)}</td>
+              <td class="num">{formatPrice(r.output)}</td>
+              <td class="num">
+                {comparable.has(r.slug) && comparable.has(model.slug) ? (
+                  <a href={`/compare/${pairSlug(model, r)}`}>compare</a>
+                ) : (
+                  ''
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    {allPairs.length > 0 && (
+      <>
+        <h2 class="sub">Compare {model.name}</h2>
+        <ul class="pairs">
+          {allPairs.map(({ other, href }) => (
+            <li><a href={href}>vs {other.name}</a></li>
+          ))}
+        </ul>
+      </>
+    )}
+
+    <p class="links">
+      <a href="/">Price your own prompt →</a> ·
+      <a href="/compare/">All comparisons</a>
+    </p>
+  </section>
+</Base>
+
+<style>
+  .page {
+    padding-top: 3rem;
+  }
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    margin: 1.75rem 0;
+    padding: 1.25rem 0;
+    border-block: 1px solid var(--rule);
+  }
+  .facts dt {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .facts dd {
+    margin: 0.3rem 0 0;
+    font-size: 1.45rem;
+    font-weight: 600;
+  }
+  .plain {
+    max-width: 58ch;
+    color: var(--ink-soft);
+  }
+  .plain strong {
+    color: var(--ink);
+  }
+  .caps {
+    list-style: none;
+    padding: 0;
+    margin: 1.25rem 0 0;
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .caps li {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 0.22em 0.55em;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    color: var(--ink-soft);
+  }
+  .tier p {
+    max-width: 60ch;
+    color: var(--ink-soft);
+  }
+  .tier strong {
+    color: var(--ink);
+  }
+  .deprecated {
+    margin-top: 1.25rem;
+    padding: 0.75rem 1rem;
+    border-left: 3px solid var(--dear);
+    border-radius: 0;
+    background: var(--paper-raised);
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    max-width: 60ch;
+  }
+  .snapshots {
+    margin-top: 1.25rem;
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    max-width: 60ch;
+  }
+  .sub {
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+  }
+  .pairs {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .pairs a {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    text-decoration: none;
+    padding: 0.25em 0.6em;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    color: var(--ink-soft);
+  }
+  .pairs a:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+  .links {
+    margin-top: 2.5rem;
+    font-size: 0.95rem;
+  }
+</style>

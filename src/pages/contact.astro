@@ -1,0 +1,61 @@
+---
+import Base from '../layouts/Base.astro';
+
+// TODO: replace before deploy — affiliate programmes verify this address.
+const EMAIL = 'hello@example.com';
+---
+
+<Base
+  title="Contact — Token Ledger"
+  description="Report a wrong price, request a model or provider, or get in touch about the data behind Token Ledger."
+  breadcrumbs={[['Contact', '/contact/']]}
+>
+  <section class="wrap page">
+    <span class="eyebrow">Contact</span>
+    <h1>Get in touch</h1>
+    <p class="lede">
+      The most useful message you can send is a price that disagrees with a
+      provider's own page. Those get fixed fastest.
+    </p>
+
+    <dl class="reasons">
+      <div>
+        <dt>A price looks wrong</dt>
+        <dd>
+          Include the model and a link to the provider's pricing page. Upstream
+          data sometimes lags an announcement by a few days.
+        </dd>
+      </div>
+      <div>
+        <dt>A provider is missing</dt>
+        <dd>
+          Say which one. Coverage is a curated list, not everything upstream —
+          resellers are deliberately excluded.
+        </dd>
+      </div>
+      <div>
+        <dt>Anything else</dt>
+        <dd>Partnerships, corrections, questions about the methodology.</dd>
+      </div>
+    </dl>
+
+    <p class="email">
+      <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+    </p>
+
+    <p class="note">
+      See <a href="/about/">about &amp; methodology</a> for how the pricing data
+      is sourced and how often it updates.
+    </p>
+  </section>
+</Base>
+
+<style>
+  .page { padding-top: 3rem; padding-bottom: 3rem; }
+  .lede { font-size: 1.05rem; color: var(--ink-soft); margin: 1rem 0 2.5rem; max-width: 54ch; }
+  .reasons { margin: 0 0 2.5rem; display: grid; gap: 1.5rem; max-width: 58ch; }
+  .reasons dt { font-weight: 600; margin-bottom: 0.3rem; }
+  .reasons dd { margin: 0; color: var(--ink-soft); font-size: 0.92rem; }
+  .email { font-family: var(--font-mono); font-size: 1.1rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); }
+  .note { font-size: 0.88rem; color: var(--ink-faint); margin-top: 2rem; }
+</style>

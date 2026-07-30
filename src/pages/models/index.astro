@@ -1,0 +1,91 @@
+---
+import Base from '../../layouts/Base.astro';
+import {
+  models,
+  providers,
+  formatPrice,
+  formatContext,
+  costRatio,
+  seoDescription,
+  updatedAt,
+} from '../../lib/models';
+---
+
+<Base
+  title={`LLM API pricing comparison — ${models.length} models`}
+  description={seoDescription(`AI API pricing comparison across ${providers.length} providers and ${models.length} models. Cost per million tokens, cheapest first. Synced ${updatedAt}.`)}
+  breadcrumbs={[['Models', '/models']]}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'LLM API pricing comparison',
+    numberOfItems: models.length,
+    itemListElement: models.slice(0, 50).map((m, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: m.name,
+      url: `/models/${m.slug}`,
+    })),
+  }}
+>
+  <section class="wrap page">
+    <span class="eyebrow">{models.length} models · {providers.length} providers · synced {updatedAt}</span>
+    <h1>LLM API pricing comparison</h1>
+    <p class="lede">
+      USD per million tokens. Sorted by input rate — the number that dominates
+      cost on retrieval and long-context work. On generation-heavy workloads,
+      sort by output instead.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Model</th>
+            <th scope="col">Provider</th>
+            <th scope="col" class="num">Input</th>
+            <th scope="col" class="num">Cached</th>
+            <th scope="col" class="num">Output</th>
+            <th scope="col" class="num">Context</th>
+          </tr>
+        </thead>
+        <tbody>
+          {models.map((m) => (
+            <tr>
+              <td><a href={`/models/${m.slug}`}>{m.name}</a></td>
+              <td><a href={`/pricing/${m.providerSlug}`}>{m.providerName}</a></td>
+              <td class="num">
+                <span class="cost" style={`--r:${costRatio(m.input)}`}>
+                  {formatPrice(m.input)}
+                </span>
+              </td>
+              <td class="num">{formatPrice(m.cachedInput)}</td>
+              <td class="num">{formatPrice(m.output)}</td>
+              <td class="num">{formatContext(m.contextWindow)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page {
+    padding-top: 3rem;
+  }
+  .lede {
+    font-size: 1.02rem;
+    color: var(--ink-soft);
+    margin: 0.9rem 0 2rem;
+  }
+  .cost {
+    font-weight: 600;
+    color: color-mix(
+      in oklab,
+      var(--cheap),
+      color-mix(in oklab, var(--mid), var(--dear) calc(var(--r) * 100%))
+        calc(var(--r) * 100%)
+    );
+  }
+</style>

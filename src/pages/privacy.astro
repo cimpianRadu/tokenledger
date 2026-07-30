@@ -1,0 +1,72 @@
+---
+import Base from '../layouts/Base.astro';
+
+// TODO: update the date and operator details before deploy.
+const UPDATED = '2026-07-30';
+const OPERATOR = 'the site operator';
+---
+
+<Base
+  title="Privacy — Token Ledger"
+  description="What Token Ledger does and does not collect. Prompts are tokenized in your browser and never uploaded."
+  breadcrumbs={[['Privacy', '/privacy/']]}
+>
+  <section class="wrap page">
+    <span class="eyebrow">Last updated {UPDATED}</span>
+    <h1>Privacy</h1>
+
+    <h2>Your prompt stays in your browser</h2>
+    <p>
+      The token counter runs entirely client-side. Text you paste is tokenized
+      by JavaScript on your own machine and is never transmitted, logged, or
+      stored. There is no server that could receive it.
+    </p>
+
+    <h2>What the site stores</h2>
+    <p>
+      Nothing. Token Ledger sets no cookies, uses no local storage, and has no
+      login. Pages are static files.
+    </p>
+
+    <h2>Third parties</h2>
+    <p>
+      Web fonts are loaded from Google Fonts, which receives your IP address as
+      part of that request — standard for any site using their CDN. The site is
+      served by a hosting provider that keeps ordinary server logs, typically IP
+      address, timestamp, and requested URL, under its own retention policy.
+    </p>
+    <p>
+      Pricing data is fetched at build time, not from your browser. No request
+      you make here reaches an AI provider.
+    </p>
+
+    <h2>If that changes</h2>
+    <p>
+      Adding analytics, advertising, or affiliate tracking would change what is
+      collected. If that happens, this page is updated first and the date above
+      changes with it.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Questions about this policy go to {OPERATOR} via the
+      {' '}<a href="/contact/">contact page</a>.
+    </p>
+
+    <p class="disclaimer">
+      This page describes the site's actual behaviour in plain terms. It is not
+      legal advice, and if you operate this site in a jurisdiction with specific
+      disclosure requirements, have it reviewed.
+    </p>
+  </section>
+</Base>
+
+<style>
+  .page { padding-top: 3rem; padding-bottom: 3rem; max-width: 62ch; }
+  h2 { margin-top: 2.25rem; margin-bottom: 0.6rem; }
+  p { color: var(--ink-soft); }
+  .disclaimer {
+    margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--rule);
+    font-size: 0.85rem; color: var(--ink-faint);
+  }
+</style>

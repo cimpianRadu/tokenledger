@@ -1,0 +1,139 @@
+---
+import Base from '../layouts/Base.astro';
+import Ledger from '../components/Ledger.tsx';
+import {
+  models,
+  providers,
+  notableModels,
+  formatPrice,
+  formatContext,
+  costRatio,
+  seoDescription,
+  updatedAt,
+} from '../lib/models';
+
+const featured = notableModels(2).slice(0, 6).map((m) => m.slug);
+const pickable = models;
+const cheapest = models[0];
+const table = notableModels(10);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Token Ledger',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'Any',
+  description:
+    'Count tokens in a prompt and compare what it costs across LLM providers.',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+};
+---
+
+<Base
+  title="Token counter and LLM cost calculator — 249 models"
+  description={seoDescription(`Paste a prompt, see the exact token count, and compare what it costs across ${models.length} models from ${providers.length} providers. Updated ${updatedAt}.`)}
+  jsonLd={jsonLd}
+>
+  <section class="wrap hero">
+    <span class="eyebrow"
+      >{models.length} models · {providers.length} providers · synced {updatedAt}</span
+    >
+    <h1>Token counter and LLM cost calculator</h1>
+    <p class="hero__sub">What does this prompt actually cost?</p>
+    <p class="hero__lede">
+      Paste your text. The tokenizer runs in your browser, nothing is uploaded,
+      and every price is a current list rate. Where a model has no public
+      tokenizer, the count is approximated — and labelled, rather than passed off
+      as exact.
+    </p>
+
+    <Ledger client:load models={pickable} featured={featured} />
+  </section>
+
+  <hr class="rule" />
+
+  <section class="wrap">
+    <span class="eyebrow">Cheapest listed: {cheapest.name} at {formatPrice(cheapest.input)} per million input</span>
+    <h2>Current list prices</h2>
+    <p>
+      Per million tokens, in USD. Cached input is the rate for a prompt prefix
+      the provider has already seen — on long system prompts it is usually the
+      largest saving available.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Model</th>
+            <th scope="col">Provider</th>
+            <th scope="col" class="num">Input</th>
+            <th scope="col" class="num">Cached</th>
+            <th scope="col" class="num">Output</th>
+            <th scope="col" class="num">Context</th>
+          </tr>
+        </thead>
+        <tbody>
+          {table.map((m) => (
+            <tr>
+              <td>
+                <a href={`/models/${m.slug}`}>{m.name}</a>
+              </td>
+              <td>
+                <a href={`/pricing/${m.providerSlug}`}>{m.providerName}</a>
+              </td>
+              <td class="num">
+                <span
+                  class="cost"
+                  style={`--r:${costRatio(m.input)}`}
+                  >{formatPrice(m.input)}</span
+                >
+              </td>
+              <td class="num">{formatPrice(m.cachedInput)}</td>
+              <td class="num">{formatPrice(m.output)}</td>
+              <td class="num">{formatContext(m.contextWindow)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="after-table">
+      <a href="/models">See all {models.length} models →</a>
+    </p>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding-top: 3.5rem;
+  }
+  .hero__sub {
+    font-family: var(--font-display);
+    font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+    font-weight: 500;
+    color: var(--ink-soft);
+    letter-spacing: -0.015em;
+    margin: 0.5rem 0 0;
+  }
+  .hero__lede {
+    font-size: 1.08rem;
+    color: var(--ink-soft);
+    max-width: 58ch;
+    margin-top: 1rem;
+  }
+  /* Price cell tints along the cheap→dear scale so scanning a column is visual. */
+  .cost {
+    color: color-mix(
+      in oklab,
+      var(--cheap),
+      color-mix(in oklab, var(--mid), var(--dear) calc(var(--r) * 100%))
+        calc(var(--r) * 100%)
+    );
+    font-weight: 600;
+  }
+  .after-table {
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+  }
+</style>

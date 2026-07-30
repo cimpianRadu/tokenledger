@@ -1,0 +1,177 @@
+---
+import Base from '../layouts/Base.astro';
+import {
+  models,
+  providers,
+  updatedAt,
+  sourceUrl,
+  formatContext,
+  formatPrice,
+} from '../lib/models';
+
+const exact = models.filter((m) => m.counting === 'exact');
+const tiered = models.filter((m) => m.tier);
+const deprecated = models.filter((m) => m.deprecatedOn);
+const cacheWrite = models.filter((m) => m.cacheWrite);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: 'How Token Ledger counts tokens and prices models',
+  dateModified: updatedAt,
+  description:
+    'Methodology behind the token counts, price figures and cost estimates: which counts are exact, what the prices exclude, and where the data comes from.',
+};
+---
+
+<Base
+  title="Methodology — how these token counts and prices work"
+  description={`Where Token Ledger's pricing comes from, which token counts are exact, and what the cost estimates exclude. ${models.length} models, synced ${updatedAt}.`}
+  breadcrumbs={[['Methodology', '/methodology']]}
+  jsonLd={jsonLd}
+>
+  <section class="wrap page">
+    <span class="eyebrow">Updated {updatedAt}</span>
+    <h1>How these numbers work</h1>
+    <p class="lede">
+      A price comparator is only worth reading if you know what it is measuring
+      and where it stops being precise. This page is that boundary, written out.
+    </p>
+
+    <h2>Where the prices come from</h2>
+    <p>
+      Rates are pulled from the
+      <a href={sourceUrl} rel="nofollow noopener">LiteLLM pricing dataset</a>, an
+      open, community-maintained record of published provider rates, and
+      normalised into USD per million tokens. The sync runs as a script, not by
+      hand, so a stale figure is a missed cron job rather than a forgotten edit.
+      Every page carries the sync date; the build fails if the data is more than
+      30 days old.
+    </p>
+    <p>
+      Currently {models.length} models across {providers.length} providers. Only
+      first-party rates are listed. Resellers and inference platforms — Bedrock,
+      Azure, OpenRouter, Fireworks, Together — often price the same model
+      differently, and mixing them into one table makes it look like a model has
+      several prices.
+    </p>
+
+    <h2>Which token counts are exact</h2>
+    <p>
+      <strong>{exact.length} models are counted exactly.</strong> OpenAI publishes
+      its tokenizer, so your text is run through the real encoder — the same
+      segmentation the API bills against.
+    </p>
+    <p>
+      Every other family is <strong>estimated</strong>. Anthropic, Google,
+      Mistral, xAI, Moonshot and the rest do not publish a tokenizer, so the
+      count is the OpenAI count scaled by a published ratio for that family.
+      Expect roughly ±10%, and more on code or non-English text, where
+      tokenizers diverge most.
+    </p>
+    <p>
+      This distinction is on every model, as an <span class="badge badge--exact">exact</span>
+      or <span class="badge badge--estimated">estimated</span> badge. Several
+      comparable tools apply the OpenAI tokenizer to all models without saying
+      so, which reads as precision it does not have.
+    </p>
+
+    <h2>Long-context rates</h2>
+    <p>
+      {tiered.length} models charge a higher rate once a single request passes a
+      context threshold. When your prompt crosses it, the higher rate is applied
+      automatically and the row is flagged — you do not have to know the
+      threshold exists to avoid being misled by the base figure.
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Model</th>
+            <th scope="col" class="num">Base in</th>
+            <th scope="col" class="num">Threshold</th>
+            <th scope="col" class="num">Above</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tiered.slice(0, 10).map((m) => (
+            <tr>
+              <td><a href={`/models/${m.slug}`}>{m.name}</a></td>
+              <td class="num">{formatPrice(m.input)}</td>
+              <td class="num">{formatContext(m.tier!.threshold)}</td>
+              <td class="num">{formatPrice(m.tier!.input)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>What the cost estimate excludes</h2>
+    <ul class="excl">
+      <li>Batch and off-peak discounts</li>
+      <li>Negotiated or enterprise rates</li>
+      <li>Free tiers and trial credits</li>
+      <li>Reasoning tokens billed beyond the visible output on thinking models</li>
+      <li>Tool calls, web search, and other per-request surcharges</li>
+      <li>Retries, which are invisible until the invoice arrives</li>
+    </ul>
+    <p>
+      Cache pricing is included where published: read rates for every model that
+      has one, and separate write rates for the {cacheWrite.length} models that
+      bill cache creation on its own — Anthropic charges it at two TTLs.
+    </p>
+    <p>
+      Output length is an input you choose, not a measurement. The presets scale
+      it from the prompt because that is the closest honest proxy; a real
+      workload is the only way to know.
+    </p>
+
+    <h2>Deprecation</h2>
+    <p>
+      {deprecated.length} listed models have a published deprecation date. They
+      are hidden from the picker by default and marked on provider tables, since
+      pricing one into a plan you will still be running next year is a trap.
+    </p>
+
+    <h2>What we would get wrong first</h2>
+    <p>
+      Provider pages change without notice, and the upstream dataset can lag a
+      price change by days. The counts for non-OpenAI families are the softest
+      number here — if a decision turns on a difference of a few percent, count
+      your real payload against the provider's own token-counting endpoint
+      instead of trusting this page.
+    </p>
+
+    <p class="links">
+      <a href="/">Price a prompt →</a>
+    </p>
+  </section>
+</Base>
+
+<style>
+  .page {
+    padding-top: 3rem;
+  }
+  .lede {
+    font-size: 1.08rem;
+    color: var(--ink-soft);
+    margin: 1rem 0 0;
+    max-width: 58ch;
+  }
+  h2 {
+    margin-top: 2.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .excl {
+    color: var(--ink-soft);
+    max-width: 60ch;
+    padding-left: 1.1rem;
+  }
+  .excl li {
+    margin-bottom: 0.3rem;
+  }
+  .links {
+    margin-top: 3rem;
+    font-size: 0.95rem;
+  }
+</style>

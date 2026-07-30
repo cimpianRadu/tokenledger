@@ -1,0 +1,94 @@
+---
+import Base from '../layouts/Base.astro';
+import { models, providers, updatedAt, sourceUrl } from '../lib/models';
+
+const exactCount = models.filter((m) => m.counting === 'exact').length;
+const tierCount = models.filter((m) => m.tier).length;
+---
+
+<Base
+  title="About Token Ledger — how the pricing data is built"
+  description={`Where the prices come from, how often they update, and which token counts are exact. ${models.length} models across ${providers.length} providers, synced ${updatedAt}.`}
+  breadcrumbs={[['About', '/about/']]}
+>
+  <section class="wrap page">
+    <span class="eyebrow">Methodology</span>
+    <h1>How this site is built</h1>
+    <p class="lede">
+      Token Ledger answers one question: what a specific prompt costs across
+      every model you might send it to. Everything below is how that number is
+      produced, so you can decide how much to trust it.
+    </p>
+
+    <h2>Where prices come from</h2>
+    <p>
+      Rates are pulled from the <a href={sourceUrl} rel="nofollow noopener">LiteLLM
+      pricing dataset</a>, an open, community-maintained record of published API
+      rates. The sync runs as a script, not by hand, so a model added upstream
+      appears here without anyone remembering to add it. The date at the bottom
+      of every page is the last successful sync — currently <strong class="mono">{updatedAt}</strong>.
+    </p>
+    <p>
+      Figures are list prices per million tokens. They exclude batch discounts,
+      negotiated enterprise rates, free tiers, and anything a reseller might
+      charge on top. Where a provider bills differently past a context threshold,
+      that second rate is shown too — <strong>{tierCount}</strong> of the
+      {' '}{models.length} models here have one, and quoting only the base rate
+      would understate long prompts by up to 2×.
+    </p>
+
+    <h2>Which token counts are exact</h2>
+    <p>
+      Only OpenAI publishes the tokenizer its models bill against. Counts for
+      those <strong>{exactCount}</strong> models are produced by running that
+      encoder on your text, in your browser. Every other family — Anthropic,
+      Google, Mistral, and the rest — has no public tokenizer, so their counts
+      are approximations derived from published ratios.
+    </p>
+    <p>
+      Those two cases look identical on most comparison sites. Here every model
+      carries an <span class="badge badge--exact">exact</span> or
+      {' '}<span class="badge badge--estimated">estimated</span> badge, because a
+      cost estimate built on a silent guess is worse than one you know to
+      double-check.
+    </p>
+
+    <h2>What is not tracked</h2>
+    <p>
+      Your prompt never leaves your browser. Tokenizing happens client-side and
+      nothing is uploaded, logged, or stored. See the
+      {' '}<a href="/privacy/">privacy page</a> for the full picture.
+    </p>
+
+    <h2>Corrections</h2>
+    <p>
+      Prices change constantly and upstream data occasionally lags a provider's
+      own announcement. If a figure here disagrees with a provider's pricing
+      page, the provider is right — <a href="/contact/">tell us</a> and it gets
+      fixed in the next sync.
+    </p>
+  </section>
+</Base>
+
+<style>
+  .page {
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+  }
+  .lede {
+    font-size: 1.08rem;
+    color: var(--ink-soft);
+    margin: 1rem 0 2.5rem;
+    max-width: 58ch;
+  }
+  h2 {
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+  p {
+    color: var(--ink-soft);
+  }
+  p strong {
+    color: var(--ink);
+  }
+</style>

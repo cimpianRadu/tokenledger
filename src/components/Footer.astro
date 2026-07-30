@@ -1,0 +1,228 @@
+---
+import { providers, models, updatedAt, sourceUrl } from '../lib/models';
+
+const exactCount = models.filter((m) => m.counting === 'exact').length;
+const tierCount = models.filter((m) => m.tier).length;
+const year = new Date().getFullYear();
+---
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__grid">
+      <div class="foot__brand">
+        <span class="foot__mark">token<span>ledger</span></span>
+        <p>
+          Count the tokens in a prompt, then see what it costs across
+          {models.length} models. The tokenizer runs in your browser — nothing
+          you paste is uploaded or stored.
+        </p>
+        <p class="foot__stamp mono">
+          Prices synced {updatedAt}
+        </p>
+      </div>
+
+      <nav class="foot__col" aria-labelledby="foot-providers">
+        <h2 id="foot-providers">Pricing</h2>
+        <ul>
+          {providers.map((p) => (
+            <li><a href={`/pricing/${p.slug}`}>{p.brand}</a></li>
+          ))}
+        </ul>
+      </nav>
+
+      <nav class="foot__col" aria-labelledby="foot-tools">
+        <h2 id="foot-tools">Tools</h2>
+        <ul>
+          <li><a href="/">Token counter</a></li>
+          <li><a href="/compare/">Compare models</a></li>
+          <li><a href="/models">All {models.length} models</a></li>
+        </ul>
+        <h2 class="foot__h2--spaced">About</h2>
+        <ul>
+          <li><a href="/methodology">How these numbers work</a></li>
+          <li>
+            <a href={sourceUrl} rel="nofollow noopener">Pricing source</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="foot__notes">
+      <h2>What these figures are, and are not</h2>
+      <dl>
+        <div>
+          <dt>Token counts</dt>
+          <dd>
+            Exact for {exactCount} OpenAI models, which publish their tokenizer.
+            Every other family is <strong>estimated</strong> from a published
+            ratio and labelled as such on the model — no provider outside
+            OpenAI publishes one. Treat estimated counts as ±10%.
+          </dd>
+        </div>
+        <div>
+          <dt>Prices</dt>
+          <dd>
+            List rates in USD per million tokens, as published by each provider.
+            They exclude batch discounts, negotiated enterprise rates, free
+            tiers, and any provider-side caching beyond the published cache
+            rate. {tierCount} models charge more past a context threshold; where
+            that applies it is priced automatically and flagged.
+          </dd>
+        </div>
+        <div>
+          <dt>Cost estimates</dt>
+          <dd>
+            Output length is the variable you set, not a measurement. Real spend
+            also moves with retries, reasoning tokens on thinking models, cache
+            hit rate, and tool calls. Use these numbers to compare models against
+            each other, not to forecast an invoice.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="foot__bar">
+      <span>© {year} Token Ledger</span>
+      <span class="foot__sep" aria-hidden="true">·</span>
+      <span>Not affiliated with any model provider</span>
+      <span class="foot__sep" aria-hidden="true">·</span>
+      <a href="/methodology">Methodology</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    border-top: 1px solid var(--rule);
+    margin-top: 6rem;
+    padding: 3rem 0 2.5rem;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+
+  .foot__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) repeat(2, minmax(0, 1fr));
+    gap: 2.5rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .foot__mark {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 0.75rem;
+  }
+  .foot__mark span {
+    color: var(--accent);
+  }
+  .foot__brand p {
+    max-width: 40ch;
+    margin: 0 0 0.75rem;
+    line-height: 1.6;
+  }
+  .foot__stamp {
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+  }
+
+  .foot__col h2 {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 0.75rem;
+  }
+  .foot__h2--spaced {
+    margin-top: 1.75rem !important;
+  }
+  .foot__col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .foot__col li {
+    margin-bottom: 0.35rem;
+  }
+  .foot__col a {
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+  .foot__col a:hover,
+  .foot__col a:focus-visible {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+
+  .foot__notes {
+    border-top: 1px solid var(--rule);
+    padding-top: 2rem;
+  }
+  .foot__notes h2 {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 1.25rem;
+  }
+  .foot__notes dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1.5rem 2.5rem;
+    margin: 0;
+  }
+  .foot__notes dt {
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 0.82rem;
+    margin-bottom: 0.3rem;
+  }
+  .foot__notes dd {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--ink-faint);
+  }
+  .foot__notes strong {
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+
+  .foot__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+  }
+  .foot__bar a {
+    color: var(--ink-faint);
+  }
+  .foot__bar a:hover {
+    color: var(--ink);
+  }
+  .foot__sep {
+    color: var(--rule-strong);
+  }
+
+  @media (max-width: 720px) {
+    .foot__grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    .foot__brand {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
