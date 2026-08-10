@@ -221,7 +221,7 @@ p {
 
 .site-header__inner {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
   padding: 1.1rem 0;
@@ -229,6 +229,9 @@ p {
 }
 
 .wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 1.15rem;
@@ -236,13 +239,17 @@ p {
   color: var(--ink);
   text-decoration: none;
 }
-.wordmark span {
+/* Only the connector word, not the wrapper the mark sits beside. */
+.wordmark__text > span {
   color: var(--accent);
 }
 
+/* Seven links do not fit a phone in one row, and the header is the one place
+   an overflow scrolls the whole document sideways. */
 .nav {
   display: flex;
-  gap: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
   font-size: 0.9rem;
 }
 .nav a {

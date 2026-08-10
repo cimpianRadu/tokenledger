@@ -5,7 +5,7 @@ import {
   providers,
   formatPrice,
   formatContext,
-  costRatio,
+  costColor,
   seoDescription,
   updatedAt,
 } from '../../lib/models';
@@ -55,7 +55,7 @@ import {
               <td><a href={`/models/${m.slug}`}>{m.name}</a></td>
               <td><a href={`/pricing/${m.providerSlug}`}>{m.providerName}</a></td>
               <td class="num">
-                <span class="cost" style={`--r:${costRatio(m.input)}`}>
+                <span class="cost" style={`color:${costColor(m.input)}`}>
                   {formatPrice(m.input)}
                 </span>
               </td>
@@ -79,13 +79,8 @@ import {
     color: var(--ink-soft);
     margin: 0.9rem 0 2rem;
   }
+  /* Colour comes from `costColor` on the element. */
   .cost {
     font-weight: 600;
-    color: color-mix(
-      in oklab,
-      var(--cheap),
-      color-mix(in oklab, var(--mid), var(--dear) calc(var(--r) * 100%))
-        calc(var(--r) * 100%)
-    );
   }
 </style>

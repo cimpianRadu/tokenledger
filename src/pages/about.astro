@@ -7,7 +7,7 @@ const tierCount = models.filter((m) => m.tier).length;
 ---
 
 <Base
-  title="About Token Ledger — how the pricing data is built"
+  title="About Price Per Token — how the pricing data is built"
   description={`Where the prices come from, how often they update, and which token counts are exact. ${models.length} models across ${providers.length} providers, synced ${updatedAt}.`}
   breadcrumbs={[['About', '/about/']]}
 >
@@ -15,7 +15,7 @@ const tierCount = models.filter((m) => m.tier).length;
     <span class="eyebrow">Methodology</span>
     <h1>How this site is built</h1>
     <p class="lede">
-      Token Ledger answers one question: what a specific prompt costs across
+      Price Per Token answers one question: what a specific prompt costs across
       every model you might send it to. Everything below is how that number is
       produced, so you can decide how much to trust it.
     </p>

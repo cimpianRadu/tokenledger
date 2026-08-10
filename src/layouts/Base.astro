@@ -1,7 +1,9 @@
 ---
 import '../styles/global.css';
 import Footer from '../components/Footer.astro';
+import Mark from '../components/Mark.astro';
 import { providers } from '../lib/models';
+import { SITE } from '../../site.config.mjs';
 
 interface Props {
   title: string;
@@ -13,7 +15,19 @@ interface Props {
 }
 
 const { title, description, jsonLd, breadcrumbs } = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://tokenledger.dev');
+
+/**
+ * Umami, and only in a production build with an id configured — otherwise
+ * `npm run dev` and preview deploys would file their own traffic as real.
+ * Self-hosted instances override the script URL; the cloud default is fine.
+ * `src/pages/privacy.astro` reads the same variable, so the policy page
+ * describes what the site actually does rather than what it might do.
+ */
+const umamiId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
+const umamiSrc =
+  import.meta.env.PUBLIC_UMAMI_SRC ?? 'https://cloud.umami.is/script.js';
+const analytics = Boolean(umamiId) && import.meta.env.PROD;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE);
 const crumbLd = breadcrumbs && {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -34,11 +48,13 @@ const crumbLd = breadcrumbs && {
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical.href} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical.href} />
-    <meta property="og:site_name" content="Token Ledger" />
+    <meta property="og:site_name" content="Price Per Token" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:image" content={new URL('/og.png', canonical).href} />
     <meta property="og:image:width" content="1200" />
@@ -73,11 +89,17 @@ const crumbLd = breadcrumbs && {
         set:html={JSON.stringify(crumbLd)}
       />
     )}
+    {analytics && (
+      <script is:inline defer src={umamiSrc} data-website-id={umamiId}></script>
+    )}
   </head>
   <body>
     <header class="site-header">
       <div class="wrap site-header__inner">
-        <a class="wordmark" href="/">token<span>ledger</span></a>
+        <a class="wordmark" href="/">
+          <Mark />
+          <span class="wordmark__text">price<span>per</span>token</span>
+        </a>
         <nav class="nav" aria-label="Providers">
           {providers.slice(0, 5).map((p) => (
             <a href={`/pricing/${p.slug}`}>{p.brand}</a>

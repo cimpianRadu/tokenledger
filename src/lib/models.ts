@@ -1,4 +1,9 @@
 import data from '../data/models.json';
+import { DATED, VARIANT, versionOf } from './families';
+import { rampColor } from './ramp';
+
+export { tierOf, TIER_LABEL, byRecency } from './families';
+export type { Tier } from './families';
 
 export type Counting = 'exact' | 'estimated';
 
@@ -61,33 +66,77 @@ export function providerBySlug(slug: string): Provider | undefined {
 }
 
 /**
- * Dated snapshots like `claude-3-haiku-20240307` price the same as their alias
- * and would triple the comparison surface for no benefit.
+ * Reading order for the provider grid. The dataset arrives in LiteLLM's own
+ * order, which is neither alphabetical nor meaningful — following it put
+ * Command first and Claude twelfth, burying the two brands the site ranks for.
  */
-const DATED = /-(\d{4}-?\d{2}-?\d{2}|\d{4})$/;
+const PROVIDER_RANK = [
+  'openai',
+  'anthropic',
+  'gemini',
+  'xai',
+  'deepseek',
+  'moonshot',
+  'mistral',
+  'perplexity',
+  'groq',
+  'cerebras',
+  'cohere_chat',
+  'ai21',
+];
+
+export const orderedProviders: Provider[] = [...providers].sort((a, b) => {
+  const ra = PROVIDER_RANK.indexOf(a.key);
+  const rb = PROVIDER_RANK.indexOf(b.key);
+  return (
+    (ra === -1 ? PROVIDER_RANK.length : ra) -
+      (rb === -1 ? PROVIDER_RANK.length : rb) || a.brand.localeCompare(b.brand)
+  );
+});
+
+/** Providers switched on when the page first loads. Enough to make the ranking
+ *  meaningful without pricing twelve rows nobody asked for. */
+export const DEFAULT_ACTIVE = ['openai', 'anthropic', 'gemini', 'deepseek'];
 
 /**
- * Rough version number pulled out of a model name: `claude-opus-4-6` → 4.6,
- * `claude-opus-5` → 5, `gpt-5.6` → 5.6. Used only to break ties between models
- * that share a context window, so the current flagship wins over last
- * quarter's — the alternative is an arbitrary alphabetical pick that leaves
- * Opus 5 out while keeping Opus 4.6.
+ * Widest context wins; inside a generation the dearer model is the flagship.
+ *
+ * Version digits are the wrong tiebreak here — `versionOf` reads
+ * `ministral-8b-latest` as version 8 and `mistral-large-latest`, which carries
+ * no digits at all, as version 0, so the 8B model would represent Mistral.
  */
-function versionOf(name: string): number {
-  const nums = name.match(/\d+(?:\.\d+)?/g);
-  if (!nums) return 0;
-  const major = parseFloat(nums[0]);
-  const minor = nums.length > 1 ? parseFloat(nums[1]) : 0;
-  return major + Math.min(minor, 99) / 100;
+function flagshipFirst(a: Model, b: Model): number {
+  return (
+    (b.contextWindow ?? 0) - (a.contextWindow ?? 0) ||
+    b.input - a.input ||
+    a.name.localeCompare(b.name)
+  );
 }
 
 /**
- * Capability variants and pre-release builds. They price the same as the model
- * they branch from and nobody searches "x-customtools vs y" — generating those
- * comparisons spends crawl budget on pages that cannot rank.
+ * The model a provider card lands on before anyone touches the select.
+ *
+ * A four-digit run in a model name is a date or a parameter count, never a
+ * version — excluding it keeps `grok-4-20-0309-reasoning` from being the face
+ * of Grok. Each filter falls back to the next if it empties the pool, so a
+ * provider that only ships dated builds still gets a default.
  */
-const VARIANT =
-  /(customtools|non-reasoning|-beta\b|-preview-\d|live-preview|native-audio|computer-use|robotics|-multi-agent|audio-preview|search-preview|-fast-latest|image-preview|@)/;
+export function defaultModelFor(providerKey: string): Model | undefined {
+  const pool = modelsFor(providerKey);
+  const tiers = [
+    pool.filter(
+      (m) =>
+        !m.deprecatedOn &&
+        !DATED.test(m.name) &&
+        !VARIANT.test(m.name) &&
+        !/\d{4}/.test(m.name) &&
+        (m.contextWindow ?? 0) >= 100_000
+    ),
+    pool.filter((m) => !m.deprecatedOn),
+    pool,
+  ];
+  return tiers.find((t) => t.length)?.slice().sort(flagshipFirst)[0];
+}
 
 /**
  * The subset we build /compare/ pages for. Full cross-product of ~300 models is
@@ -135,6 +184,11 @@ export function formatContext(v: number | null): string {
   if (!v) return '—';
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1).replace('.0', '')}M`;
   return `${Math.round(v / 1000)}K`;
+}
+
+/** The cheap→dear colour for a price, ready to drop into a `color:` rule. */
+export function costColor(value: number): string {
+  return rampColor(costRatio(value));
 }
 
 /** Position on the cheap→dear scale, log-spaced because prices span 3 orders. */

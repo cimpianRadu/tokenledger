@@ -17,7 +17,7 @@ const cacheWrite = models.filter((m) => m.cacheWrite);
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'TechArticle',
-  headline: 'How Token Ledger counts tokens and prices models',
+  headline: 'How Price Per Token counts tokens and prices models',
   dateModified: updatedAt,
   description:
     'Methodology behind the token counts, price figures and cost estimates: which counts are exact, what the prices exclude, and where the data comes from.',
@@ -26,7 +26,7 @@ const jsonLd = {
 
 <Base
   title="Methodology — how these token counts and prices work"
-  description={`Where Token Ledger's pricing comes from, which token counts are exact, and what the cost estimates exclude. ${models.length} models, synced ${updatedAt}.`}
+  description={`Where Price Per Token's pricing comes from, which token counts are exact, and what the cost estimates exclude. ${models.length} models, synced ${updatedAt}.`}
   breadcrumbs={[['Methodology', '/methodology']]}
   jsonLd={jsonLd}
 >

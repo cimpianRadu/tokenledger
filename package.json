@@ -1,11 +1,12 @@
 {
-  "name": "tokenledger",
+  "name": "pricepertoken",
   "type": "module",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "astro dev",
     "sync": "node scripts/sync-pricing.mjs",
+    "og": "node scripts/make-og.mjs",
     "check": "node scripts/validate.mjs",
     "build": "astro build && node scripts/validate.mjs --dist",
     "preview": "astro preview"
@@ -19,6 +20,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0"
   }

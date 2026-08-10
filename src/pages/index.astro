@@ -4,23 +4,32 @@ import Ledger from '../components/Ledger.tsx';
 import {
   models,
   providers,
+  orderedProviders,
+  defaultModelFor,
+  DEFAULT_ACTIVE,
   notableModels,
   formatPrice,
   formatContext,
-  costRatio,
+  costColor,
   seoDescription,
   updatedAt,
 } from '../lib/models';
 
-const featured = notableModels(2).slice(0, 6).map((m) => m.slug);
-const pickable = models;
+/** Each card lands on its provider's current flagship. The old `featured`
+ *  sorted alphabetically and then took six, so the default comparison was
+ *  always Claude, Command and DeepSeek — no GPT, no Gemini. */
+const defaults = Object.fromEntries(
+  orderedProviders
+    .map((p) => [p.key, defaultModelFor(p.key)?.slug])
+    .filter(([, slug]) => slug)
+);
 const cheapest = models[0];
 const table = notableModels(10);
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
-  name: 'Token Ledger',
+  name: 'Price Per Token',
   applicationCategory: 'DeveloperApplication',
   operatingSystem: 'Any',
   description:
@@ -47,7 +56,13 @@ const jsonLd = {
       as exact.
     </p>
 
-    <Ledger client:load models={pickable} featured={featured} />
+    <Ledger
+      client:load
+      models={models}
+      providers={orderedProviders}
+      defaults={defaults}
+      active={DEFAULT_ACTIVE}
+    />
   </section>
 
   <hr class="rule" />
@@ -83,9 +98,7 @@ const jsonLd = {
                 <a href={`/pricing/${m.providerSlug}`}>{m.providerName}</a>
               </td>
               <td class="num">
-                <span
-                  class="cost"
-                  style={`--r:${costRatio(m.input)}`}
+                <span class="cost" style={`color:${costColor(m.input)}`}
                   >{formatPrice(m.input)}</span
                 >
               </td>
@@ -122,14 +135,9 @@ const jsonLd = {
     max-width: 58ch;
     margin-top: 1rem;
   }
-  /* Price cell tints along the cheap→dear scale so scanning a column is visual. */
+  /* Price cell tints along the cheap→dear scale so scanning a column is visual.
+     The colour itself comes from `costColor` on the element. */
   .cost {
-    color: color-mix(
-      in oklab,
-      var(--cheap),
-      color-mix(in oklab, var(--mid), var(--dear) calc(var(--r) * 100%))
-        calc(var(--r) * 100%)
-    );
     font-weight: 600;
   }
   .after-table {

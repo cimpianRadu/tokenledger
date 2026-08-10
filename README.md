@@ -1,4 +1,4 @@
-# Token Ledger
+# Price Per Token
 
 Comparator de preț per token pentru API-uri LLM. Astro + o insulă React pentru tool.
 

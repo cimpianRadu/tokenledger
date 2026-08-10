@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Price Per Token">
+  <style>
+    .ink { stroke: #14181d; fill: #14181d; }
+    .rule { stroke: #2b4fd8; }
+    @media (prefers-color-scheme: dark) {
+      .ink { stroke: #e7edf3; fill: #e7edf3; }
+      .rule { stroke: #7d9cff; }
+    }
+  </style>
+  <g fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Numerator: price. -->
+    <path class="ink" d="M12 3v10.6" />
+    <path
+      class="ink"
+      d="M15 6.1c-.7-1-1.9-1.5-3.2-1.4-1.5.1-2.6.8-2.6 1.9 0 1.2 1.1 1.7 2.8 2 1.8.3 3.1.8 3.1 2.1 0 1.2-1.3 2-2.9 2-1.4 0-2.6-.5-3.2-1.5"
+    />
+    <!-- The division itself — the "per" in the wordmark, in the same accent. -->
+    <path class="rule" d="M2.6 15.4h18.8" />
+  </g>
+  <!-- Denominator: tokens, sized like the pieces in the app's token strip. -->
+  <g class="ink" stroke="none">
+    <rect x="2.6" y="17.8" width="6.2" height="3.6" rx="1.2" />
+    <rect x="10.2" y="17.8" width="4.2" height="3.6" rx="1.2" />
+    <rect x="15.8" y="17.8" width="5.6" height="3.6" rx="1.2" />
+  </g>
+</svg>
