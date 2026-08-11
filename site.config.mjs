@@ -32,3 +32,13 @@ export const OPERATOR = 'Radu Gheorghe Cimpian PFA';
  * origin, so neither applies.
  */
 export const ANALYTICS = 'vercel';
+
+/**
+ * IndexNow key. Public by design — ownership is proved by serving the same
+ * value at `/<key>.txt`, which is why `scripts/indexnow.mjs` refuses to submit
+ * unless the file on disk still matches this constant.
+ *
+ * Notifies Bing, and through it Yandex, Seznam and Naver. Google ignores
+ * IndexNow entirely and is handled by the sitemap in Search Console.
+ */
+export const INDEXNOW_KEY = 'a8bac0c751094d1ba4efe00ec761425a';
