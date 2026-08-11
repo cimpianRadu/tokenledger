@@ -44,9 +44,33 @@ const ALIASES = {
   'llama-3-1-8b-instant': 'llama-3-1-instruct-8b',
   'zai-glm-4-6': 'glm-4-6',
   'zai-glm-4-7': 'glm-4-7',
-  'ministral-8b-latest': 'ministral-8b',
   'mistral-large-3': 'mistral-large-3',
+
+  // Word order: upstream files the size after the version, we take it before.
+  'jamba-large-1-6': 'jamba-1-6-large',
+  'jamba-large-1-7': 'jamba-1-7-large',
+  'jamba-mini-1-7': 'jamba-1-7-mini',
+
+  // Upstream pins the release date on models Cohere ships undated.
+  'command-r': 'command-r-03-2024',
+  'command-r-plus': 'command-r-plus-04-2024',
+
+  // Upstream marks the *non*-reasoning build and leaves the reasoning one bare.
+  'grok-4-20-0309-reasoning': 'grok-4-20-0309',
 };
+
+/**
+ * Deliberately not aliased, though a plausible-looking candidate exists:
+ *
+ *   gpt-5-6              upstream has only gpt-5-6-luna / -sol / -terra, and
+ *                        nothing says which one the bare id resolves to.
+ *   ministral-8b-latest  upstream's nearest is ministral-3-8b, a later
+ *                        generation. `-latest` may or may not point at it.
+ *
+ * Both would be guesses, and a wrong guess here staples one model's score to
+ * another model's price — the single worst failure this feature can have. They
+ * stay unmatched until someone confirms the mapping.
+ */
 
 /**
  * Strip everything that is packaging rather than identity, so `kimi-k2-5` and
