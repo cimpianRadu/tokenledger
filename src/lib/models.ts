@@ -67,21 +67,25 @@ export function providerBySlug(slug: string): Provider | undefined {
 
 /**
  * Reading order for the provider grid. The dataset arrives in LiteLLM's own
- * order, which is neither alphabetical nor meaningful — following it put
- * Command first and Claude twelfth, burying the two brands the site ranks for.
+ * order, which is neither alphabetical nor meaningful — following it put Cohere
+ * first and Claude twelfth, burying the two brands the site ranks for.
+ *
+ * Ordered by measured search demand for the provider's own pricing query (see
+ * the volumes in `scripts/sync-pricing.mjs`), so the grid opens with the
+ * providers most visitors arrived looking for.
  */
 const PROVIDER_RANK = [
   'openai',
   'anthropic',
   'gemini',
-  'xai',
   'deepseek',
-  'moonshot',
-  'mistral',
+  'xai',
   'perplexity',
+  'moonshot',
   'groq',
-  'cerebras',
+  'mistral',
   'cohere_chat',
+  'cerebras',
   'ai21',
 ];
 

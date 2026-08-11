@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import Footer from '../components/Footer.astro';
-import { providers } from '../lib/models';
+import { orderedProviders } from '../lib/models';
 import { SITE, ANALYTICS } from '../../site.config.mjs';
 
 interface Props {
@@ -93,7 +93,7 @@ const crumbLd = breadcrumbs && {
       <div class="wrap site-header__inner">
         <a class="wordmark" href="/">price<em>per</em>token</a>
         <nav class="nav" aria-label="Providers">
-          {providers.slice(0, 5).map((p) => (
+          {orderedProviders.slice(0, 5).map((p) => (
             <a href={`/pricing/${p.slug}`}>{p.brand}</a>
           ))}
           <a href="/compare/">Compare</a>

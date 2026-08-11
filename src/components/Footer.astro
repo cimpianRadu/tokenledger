@@ -1,5 +1,5 @@
 ---
-import { providers, models, updatedAt, sourceUrl } from '../lib/models';
+import { orderedProviders, models, updatedAt, sourceUrl } from '../lib/models';
 
 const exactCount = models.filter((m) => m.counting === 'exact').length;
 const tierCount = models.filter((m) => m.tier).length;
@@ -24,7 +24,7 @@ const year = new Date().getFullYear();
       <nav class="foot__col" aria-labelledby="foot-providers">
         <h2 id="foot-providers">Pricing</h2>
         <ul>
-          {providers.map((p) => (
+          {orderedProviders.map((p) => (
             <li><a href={`/pricing/${p.slug}`}>{p.brand}</a></li>
           ))}
         </ul>

@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { providers, models } from '../lib/models';
+import { orderedProviders, models } from '../lib/models';
 ---
 
 <Base
@@ -19,7 +19,7 @@ import { providers, models } from '../lib/models';
       <li><a href="/">Token counter</a></li>
       <li><a href="/models">All {models.length} models</a></li>
       <li><a href="/compare/">Compare models</a></li>
-      {providers.map((p) => (
+      {orderedProviders.map((p) => (
         <li><a href={`/pricing/${p.slug}`}>{p.brand} pricing</a></li>
       ))}
     </ul>

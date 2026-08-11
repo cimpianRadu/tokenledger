@@ -152,16 +152,28 @@ if (pairs > 1500)
 
 /* --------------------------------------------------------------- output --- */
 
-/** Keyword targets we measured. If a title stops containing its term, the page
- *  has drifted off the query it was built for. */
+/**
+ * Keyword targets we measured. If a title stops containing its term, the page
+ * has drifted off the query it was built for.
+ *
+ * Every provider term here is the higher-volume of the family-vs-company pair,
+ * checked against Google Ads in 2026-08 — see `scripts/sync-pricing.mjs`, which
+ * carries the numbers. This list is why swapping "GPT" for "OpenAI" failed the
+ * build until the target was updated deliberately, which is the point: the
+ * brand and the term it targets can only move together.
+ */
 const KEYWORD_TARGETS = [
   ['index.html', 'token counter'],
   ['index.html', 'llm cost calculator'],
   ['models/index.html', 'llm api pricing'],
+  ['pricing/openai/index.html', 'openai api pricing'],
   ['pricing/anthropic/index.html', 'claude api pricing'],
-  ['pricing/openai/index.html', 'gpt api pricing'],
-  ['pricing/moonshot/index.html', 'kimi api pricing'],
+  ['pricing/gemini/index.html', 'gemini api pricing'],
+  ['pricing/deepseek/index.html', 'deepseek api pricing'],
   ['pricing/xai/index.html', 'grok api pricing'],
+  ['pricing/perplexity/index.html', 'perplexity api pricing'],
+  ['pricing/moonshot/index.html', 'kimi api pricing'],
+  ['pricing/cohere/index.html', 'cohere api pricing'],
   ['methodology/index.html', 'methodology'],
 ];
 

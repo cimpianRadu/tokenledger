@@ -60,10 +60,13 @@ badge `exact` sau `estimated`, iar footer-ul spune de ce. Numai OpenAI publică
 tokenizer; restul sunt aproximări cu raport declarat în `DRIFT` din
 `src/components/Ledger.tsx`.
 
-**Brand, nu firmă, în titluri.** Lumea caută „claude api pricing", nu
-„anthropic api pricing". Fiecare furnizor are un câmp `brand` (Claude, Grok,
-Kimi, Sonar) care conduce title, H1, meta și schema. Numele firmei rămâne în
-corpul paginii.
+**Numele pe care îl caută lumea, în titluri.** Fiecare furnizor are un câmp
+`brand` care conduce title, H1, meta și schema. Uneori e familia de modele
+(„claude api pricing" 6.600/lună bate „anthropic api pricing" 2.900), alteori e
+firma („openai" 9.900 bate „gpt" 880, „perplexity" 720 bate „sonar" 20).
+Regula nu se ghicește — volumele măsurate sunt în `scripts/sync-pricing.mjs`,
+iar `KEYWORD_TARGETS` din `scripts/validate.mjs` pică build-ul dacă un titlu
+pleacă de pe termenul pentru care a fost făcut.
 
 **Ranking după context, nu după preț.** Modelele vechi rămân listate la
 tarifele lor vechi — Opus 4.1 e $15/$75 în timp ce Opus 5 e $5/$25 — așa că
@@ -79,7 +82,7 @@ modele curente cu context ≥100K, maxim 3 per furnizor → 561 perechi.
 1. Schimbă `SITE` în `astro.config.mjs` înainte de deploy.
 2. Tokenizare reală per familie unde e posibil — ăsta e unicul lucru care te
    diferențiază tehnic, și e și motivul pentru care badge-urile există.
-3. Verifică brandurile mici (Sonar, Command, Jamba) cu keyword research — le-am
-   pus din intuiție, nu din date măsurate.
+3. AI21 nu are cerere măsurabilă sub niciun nume (Jamba 0, AI21 10/lună).
+   Pagina rămâne pentru completitudine, nu pentru trafic.
 4. Referral spre un gateway (OpenRouter, LLMGateway) în locul bannerelor —
    publicul de dev blochează reclamele, dar dă click pe infrastructură.

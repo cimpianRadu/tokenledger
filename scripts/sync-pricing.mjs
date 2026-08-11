@@ -17,9 +17,26 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE =
   'https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json';
 
-/** Providers we surface. Order drives nav order. */
+/**
+ * Providers we surface. This order is only the order of the JSON file —
+ * everything the reader sees is ranked by `PROVIDER_RANK` in `src/lib/models.ts`.
+ *
+ * `brand` drives the title, H1, meta and schema of `/pricing/<slug>`, so it has
+ * to be whichever of the two names people actually type. That is the model
+ * family for some providers and the company for others, and the split is not
+ * guessable — these are US Google Ads volumes for "<term> api pricing",
+ * measured 2026-08:
+ *
+ *   claude 6,600 › anthropic 2,900     grok 1,000 › xai 390
+ *   kimi 170 › moonshot 30             openai 9,900 › gpt 880
+ *   perplexity 720 › sonar 20          cohere 50 › command 0
+ *
+ * "GPT" was the expensive mistake: an 11× loss on the highest-volume page on
+ * the site. AI21 has no measurable demand under either name, so it takes the
+ * company name for consistency rather than for traffic.
+ */
 const PROVIDERS = {
-  openai: { name: 'OpenAI', brand: 'GPT', tokenizer: 'o200k_base', counting: 'exact' },
+  openai: { name: 'OpenAI', brand: 'OpenAI', tokenizer: 'o200k_base', counting: 'exact' },
   anthropic: { name: 'Anthropic', brand: 'Claude', tokenizer: null, counting: 'estimated' },
   gemini: { name: 'Google', brand: 'Gemini', tokenizer: null, counting: 'estimated' },
   deepseek: { name: 'DeepSeek', brand: 'DeepSeek', tokenizer: null, counting: 'estimated' },
@@ -27,9 +44,9 @@ const PROVIDERS = {
   xai: { name: 'xAI', brand: 'Grok', tokenizer: null, counting: 'estimated' },
   moonshot: { name: 'Moonshot', brand: 'Kimi', tokenizer: null, counting: 'estimated' },
   // LiteLLM files Cohere's chat models under `cohere_chat`, not `cohere`.
-  cohere_chat: { name: 'Cohere', brand: 'Command', slug: 'cohere', tokenizer: null, counting: 'estimated' },
-  perplexity: { name: 'Perplexity', brand: 'Sonar', tokenizer: null, counting: 'estimated' },
-  ai21: { name: 'AI21', brand: 'Jamba', tokenizer: null, counting: 'estimated' },
+  cohere_chat: { name: 'Cohere', brand: 'Cohere', slug: 'cohere', tokenizer: null, counting: 'estimated' },
+  perplexity: { name: 'Perplexity', brand: 'Perplexity', tokenizer: null, counting: 'estimated' },
+  ai21: { name: 'AI21', brand: 'AI21', tokenizer: null, counting: 'estimated' },
   cerebras: { name: 'Cerebras', brand: 'Cerebras', tokenizer: null, counting: 'estimated' },
   groq: { name: 'Groq', brand: 'Groq', tokenizer: null, counting: 'estimated' },
 };
