@@ -165,6 +165,35 @@ const KEYWORD_TARGETS = [
   ['methodology/index.html', 'methodology'],
 ];
 
+/**
+ * A count typed as a literal where an expression belongs.
+ *
+ * The homepage title read "— 249 models" while the description and body of the
+ * same page interpolated `models.length`. So the one string Google reads was
+ * the one string nothing kept in step, and every sync widened the gap. This
+ * checks the source rather than the output, because on a provider page "36
+ * models" is correct prose and only the author's intent distinguishes them.
+ */
+function astroFiles(dir) {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+    const p = join(dir, e.name);
+    return e.isDirectory() ? astroFiles(p) : p.endsWith('.astro') ? [p] : [];
+  });
+}
+for (const file of astroFiles(resolve(ROOT, 'src/pages'))) {
+  const src = readFileSync(file, 'utf8');
+  for (const [, attr, value] of src.matchAll(
+    /\b(title|description)="([^"]*)"/g
+  )) {
+    const n = /(\d{2,})\s+(models|providers)/.exec(value);
+    if (n)
+      fail(
+        `${relative(ROOT, file)}: ${attr} hardcodes "${n[1]} ${n[2]}" — ` +
+          'interpolate the count so it cannot go stale.'
+      );
+  }
+}
+
 /** Trust pages that must never silently disappear. */
 const REQUIRED_PAGES = ['methodology/index.html', '404.html', 'robots.txt'];
 
@@ -207,6 +236,7 @@ if (checkDist) {
       if (!/<meta name="description"/.test(html)) fail(`${route}: no meta description`);
       if (!/<link rel="canonical"/.test(html)) fail(`${route}: no canonical`);
       if (!/<h1[\s>]/.test(html)) warn(`${route}: no <h1>`);
+
 
       const description = /<meta name="description" content="([^"]*)"/.exec(html)?.[1];
       if (description && description.length > 160)
