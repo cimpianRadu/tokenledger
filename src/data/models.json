@@ -24,7 +24,7 @@
       "name": "Google",
       "brand": "Gemini",
       "counting": "estimated",
-      "modelCount": 34
+      "modelCount": 31
     },
     {
       "key": "deepseek",
@@ -80,7 +80,7 @@
       "name": "AI21",
       "brand": "AI21",
       "counting": "estimated",
-      "modelCount": 9
+      "modelCount": 7
     },
     {
       "key": "cerebras",
@@ -469,53 +469,11 @@
       "maxOutput": 65535,
       "vision": true,
       "functionCalling": true,
-      "reasoning": true
-    },
-    {
-      "id": "gemini/gemini-2.5-flash-lite-preview-06-17",
-      "slug": "gemini-2-5-flash-lite-preview-06-17",
-      "name": "gemini-2.5-flash-lite-preview-06-17",
-      "provider": "gemini",
-      "providerName": "Google",
-      "providerSlug": "gemini",
-      "brand": "Gemini",
-      "tokenizer": null,
-      "counting": "estimated",
-      "input": 0.1,
-      "output": 0.4,
-      "cachedInput": 0.025,
-      "cacheWrite": null,
-      "cacheWrite1h": null,
-      "tier": null,
-      "deprecatedOn": "2025-11-18",
-      "contextWindow": 1048576,
-      "maxOutput": 65535,
-      "vision": true,
-      "functionCalling": true,
-      "reasoning": true
-    },
-    {
-      "id": "gemini/gemini-2.5-flash-lite-preview-09-2025",
-      "slug": "gemini-2-5-flash-lite-preview-09-2025",
-      "name": "gemini-2.5-flash-lite-preview-09-2025",
-      "provider": "gemini",
-      "providerName": "Google",
-      "providerSlug": "gemini",
-      "brand": "Gemini",
-      "tokenizer": null,
-      "counting": "estimated",
-      "input": 0.1,
-      "output": 0.4,
-      "cachedInput": 0.01,
-      "cacheWrite": null,
-      "cacheWrite1h": null,
-      "tier": null,
-      "deprecatedOn": null,
-      "contextWindow": 1048576,
-      "maxOutput": 65535,
-      "vision": true,
-      "functionCalling": true,
-      "reasoning": true
+      "reasoning": true,
+      "snapshots": [
+        "gemini-2.5-flash-lite-preview-06-17",
+        "gemini-2.5-flash-lite-preview-09-2025"
+      ]
     },
     {
       "id": "gemini/gemini-flash-lite-latest",
@@ -1064,30 +1022,10 @@
       "maxOutput": 256000,
       "vision": false,
       "functionCalling": false,
-      "reasoning": false
-    },
-    {
-      "id": "jamba-1.5-mini@001",
-      "slug": "jamba-1-5-mini-001",
-      "name": "jamba-1.5-mini@001",
-      "provider": "ai21",
-      "providerName": "AI21",
-      "providerSlug": "ai21",
-      "brand": "AI21",
-      "tokenizer": null,
-      "counting": "estimated",
-      "input": 0.2,
-      "output": 0.4,
-      "cachedInput": null,
-      "cacheWrite": null,
-      "cacheWrite1h": null,
-      "tier": null,
-      "deprecatedOn": null,
-      "contextWindow": 256000,
-      "maxOutput": 256000,
-      "vision": false,
-      "functionCalling": false,
-      "reasoning": false
+      "reasoning": false,
+      "snapshots": [
+        "jamba-1.5-mini@001"
+      ]
     },
     {
       "id": "jamba-mini-1.6",
@@ -1890,30 +1828,10 @@
       "maxOutput": 65535,
       "vision": true,
       "functionCalling": true,
-      "reasoning": true
-    },
-    {
-      "id": "gemini/gemini-2.5-flash-preview-09-2025",
-      "slug": "gemini-2-5-flash-preview-09-2025",
-      "name": "gemini-2.5-flash-preview-09-2025",
-      "provider": "gemini",
-      "providerName": "Google",
-      "providerSlug": "gemini",
-      "brand": "Gemini",
-      "tokenizer": null,
-      "counting": "estimated",
-      "input": 0.3,
-      "output": 2.5,
-      "cachedInput": 0.075,
-      "cacheWrite": null,
-      "cacheWrite1h": null,
-      "tier": null,
-      "deprecatedOn": null,
-      "contextWindow": 1048576,
-      "maxOutput": 65535,
-      "vision": true,
-      "functionCalling": true,
-      "reasoning": true
+      "reasoning": true,
+      "snapshots": [
+        "gemini-2.5-flash-preview-09-2025"
+      ]
     },
     {
       "id": "gemini/gemini-3.5-flash-lite",
@@ -4191,30 +4109,10 @@
       "maxOutput": 256000,
       "vision": false,
       "functionCalling": false,
-      "reasoning": false
-    },
-    {
-      "id": "jamba-1.5-large@001",
-      "slug": "jamba-1-5-large-001",
-      "name": "jamba-1.5-large@001",
-      "provider": "ai21",
-      "providerName": "AI21",
-      "providerSlug": "ai21",
-      "brand": "AI21",
-      "tokenizer": null,
-      "counting": "estimated",
-      "input": 2,
-      "output": 8,
-      "cachedInput": null,
-      "cacheWrite": null,
-      "cacheWrite1h": null,
-      "tier": null,
-      "deprecatedOn": null,
-      "contextWindow": 256000,
-      "maxOutput": 256000,
-      "vision": false,
-      "functionCalling": false,
-      "reasoning": false
+      "reasoning": false,
+      "snapshots": [
+        "jamba-1.5-large@001"
+      ]
     },
     {
       "id": "jamba-large-1.6",

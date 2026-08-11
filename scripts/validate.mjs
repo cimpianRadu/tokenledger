@@ -12,6 +12,7 @@
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { resolve, dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { pinnedFrom } from './lib/aliases.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = resolve(ROOT, 'dist');
@@ -19,9 +20,13 @@ const checkDist = process.argv.includes('--dist');
 
 const errors = [];
 const warnings = [];
+const notes = [];
 const fail = (m) => errors.push(m);
 /** `kind` groups repetitive warnings so 187 title-length notes print as one. */
 const warn = (m, kind = null) => warnings.push({ m, kind });
+/** A number worth printing that nobody needs to act on. Warnings are for things
+ *  that should be fixed; anything permanently true belongs here instead. */
+const note = (m) => notes.push(m);
 
 /* ---------------------------------------------------------------- data --- */
 
@@ -91,37 +96,43 @@ for (const m of models) {
     fail(`${m.id}: counting must be "exact" or "estimated", got "${m.counting}"`);
 }
 
-/** Snapshot collapse regression: a dated variant sitting next to its alias at
- *  identical rates means sync stopped folding them. */
-const SNAPSHOT = /^(.+?)-(\d{4}-\d{2}-\d{2}|\d{8}|\d{6}|\d{4})$/;
+/**
+ * Collapse regression: a pinned copy sitting next to the alias it pins, at
+ * identical rates, means sync stopped folding them and the site now serves two
+ * pages for one model.
+ */
 for (const m of models) {
-  const match = SNAPSHOT.exec(m.name);
-  if (!match) continue;
-  const base = models.find(
-    (x) => x.provider === m.provider && x.name === match[1]
-  );
-  if (
-    base &&
-    base.input === m.input &&
-    base.output === m.output &&
-    base.contextWindow === m.contextWindow
-  )
-    fail(`"${m.name}" duplicates "${base.name}" — snapshot collapse regressed`);
+  for (const name of pinnedFrom(m.name)) {
+    const base = models.find((x) => x.provider === m.provider && x.name === name);
+    if (
+      base &&
+      base.input === m.input &&
+      base.output === m.output &&
+      base.contextWindow === m.contextWindow
+    )
+      fail(`"${m.name}" duplicates "${base.name}" — alias collapse regressed`);
+  }
 }
 
-/** Redundancy: identical price and context inside one provider. Some of this
- *  is legitimate (audio vs search variants), so it warns rather than fails. */
+/**
+ * Rows that share a price with a sibling.
+ *
+ * This was a warning at >40%, and it sat at 47% while nothing was wrong: four
+ * Claude Opus generations list at $5/$25, and gemini-2.5-flash-lite matches
+ * gemini-2.0-flash. Different models at one price is how this market prices,
+ * not a fault, and a warning that is always on is one nobody reads.
+ *
+ * Over-listing is caught above, by name, where it can be proved. What is left
+ * is reported as a number so a jump is still visible in the log.
+ */
 const buckets = new Map();
 for (const m of models) {
   const k = `${m.provider}|${m.input}|${m.output}|${m.contextWindow}`;
   buckets.set(k, (buckets.get(k) ?? 0) + 1);
 }
-const redundant = [...buckets.values()].reduce((s, n) => s + Math.max(0, n - 1), 0);
-const redundantPct = Math.round((redundant / models.length) * 100);
-if (redundantPct > 60)
-  fail(`${redundantPct}% of rows share price and context with a sibling — sync is over-listing.`);
-else if (redundantPct > 40)
-  warn(`${redundantPct}% of rows share price and context with a sibling.`);
+const tied = [...buckets.values()].reduce((s, n) => s + Math.max(0, n - 1), 0);
+const tiedPct = Math.round((tied / models.length) * 100);
+note(`${tiedPct}% of rows share price and context with a sibling.`);
 
 /** Provider coverage: a provider that drops to zero means an upstream key
  *  changed (this is exactly how Cohere silently vanished). */
@@ -253,7 +264,10 @@ if (checkDist) {
       const description = /<meta name="description" content="([^"]*)"/.exec(html)?.[1];
       if (description && description.length > 160)
         warn(`${route} (${description.length} chars)`, 'Meta descriptions over 160 chars');
-      if (!/ld\+json/.test(html)) warn(route, 'Pages with no structured data');
+      /* 404 is served with an HTTP 404 and describes no entity, so schema on it
+         would be a claim about a page that does not exist. */
+      if (!/ld\+json/.test(html) && !route.startsWith('/404'))
+        warn(route, 'Pages with no structured data');
 
       for (const href of html.matchAll(/href="(\/[^"#?]*)"/g)) {
         let target = href[1];
@@ -310,6 +324,8 @@ if (checkDist) {
 console.log(
   `${models.length} models · ${providers.length} providers · synced ${updatedAt} (${ageDays}d ago)`
 );
+
+for (const n of notes) console.log(`  note  ${n}`);
 
 const grouped = new Map();
 for (const w of warnings) {

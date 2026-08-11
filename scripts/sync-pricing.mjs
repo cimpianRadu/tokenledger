@@ -12,6 +12,7 @@
 import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { pinnedFrom } from './lib/aliases.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE =
@@ -166,29 +167,27 @@ for (const [id, spec] of Object.entries(raw)) {
 models.sort((a, b) => a.input - b.input || a.id.localeCompare(b.id));
 
 /**
- * Providers list both a moving alias and pinned snapshots of the same model
- * (`gpt-5-nano` and `gpt-5-nano-2025-08-07`) at identical rates. For a price
- * comparator the snapshot adds nothing but a duplicate page, so fold it into
- * the alias and keep the name for search.
+ * Fold every pinned copy into the alias it pins, keeping the name for search.
+ * The rates have to match too — a pinned copy at a different price is a
+ * different offer and earns its own row.
  */
-const SNAPSHOT = /^(.+?)-(\d{4}-\d{2}-\d{2}|\d{8}|\d{6}|\d{4})$/;
 const canonical = new Map();
 for (const m of models) canonical.set(`${m.provider}|${m.name}`, m);
 
 const collapsed = [];
 for (const m of models) {
-  const match = SNAPSHOT.exec(m.name);
-  if (match) {
-    const base = canonical.get(`${m.provider}|${match[1]}`);
-    if (
-      base &&
-      base.input === m.input &&
-      base.output === m.output &&
-      base.contextWindow === m.contextWindow
-    ) {
-      (base.snapshots ??= []).push(m.name);
-      continue;
-    }
+  const base = pinnedFrom(m.name)
+    .map((name) => canonical.get(`${m.provider}|${name}`))
+    .find(
+      (b) =>
+        b &&
+        b.input === m.input &&
+        b.output === m.output &&
+        b.contextWindow === m.contextWindow
+    );
+  if (base) {
+    (base.snapshots ??= []).push(m.name);
+    continue;
   }
   collapsed.push(m);
 }

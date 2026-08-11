@@ -73,16 +73,21 @@ tarifele lor vechi — Opus 4.1 e $15/$75 în timp ce Opus 5 e $5/$25 — așa c
 „cel mai scump" selecta fix modelele pe care nu le mai compară nimeni.
 Fereastra de context e cel mai bun indicator de recență din dataset.
 
-**Paginile de compare sunt limitate deliberat.** Produsul cartezian pe 249 de
-modele ar fi ~31.000 de pagini aproape identice. `notableModels(3)` taie la
+**Paginile de compare sunt limitate deliberat.** Produsul cartezian pe tot
+catalogul ar fi ~30.000 de pagini aproape identice. `notableModels(3)` taie la
 modele curente cu context ≥100K, maxim 3 per furnizor → 561 perechi.
+
+**Un model, un rând.** Furnizorii publică același model sub mai multe ID-uri:
+`gpt-5-nano-2025-08-07`, `jamba-1.5-mini@001`, `gemini-2.5-flash-preview-09-2025`.
+`scripts/lib/aliases.mjs` decide ce e alias, sync-ul le pliază pe rândul de bază
+(numele rămâne pe pagină, pentru căutare), iar validatorul pică build-ul dacă
+scapă vreunul. `-latest` **nu** e alias: la Mistral și xAI e ID-ul principal.
 
 ## Ce urmează
 
-1. Schimbă `SITE` în `astro.config.mjs` înainte de deploy.
-2. Tokenizare reală per familie unde e posibil — ăsta e unicul lucru care te
+1. Tokenizare reală per familie unde e posibil — ăsta e unicul lucru care te
    diferențiază tehnic, și e și motivul pentru care badge-urile există.
-3. AI21 nu are cerere măsurabilă sub niciun nume (Jamba 0, AI21 10/lună).
+2. AI21 nu are cerere măsurabilă sub niciun nume (Jamba 0, AI21 10/lună).
    Pagina rămâne pentru completitudine, nu pentru trafic.
-4. Referral spre un gateway (OpenRouter, LLMGateway) în locul bannerelor —
+3. Referral spre un gateway (OpenRouter, LLMGateway) în locul bannerelor —
    publicul de dev blochează reclamele, dar dă click pe infrastructură.
