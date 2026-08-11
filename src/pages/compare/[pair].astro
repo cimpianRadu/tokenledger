@@ -10,6 +10,8 @@ import {
   updatedAt,
 } from '../../lib/models';
 import type { Model } from '../../lib/models';
+import Capability from '../../components/Capability.astro';
+import { readCapability } from '../../lib/benchmarks';
 
 export function getStaticPaths() {
   const list = notableModels(3);
@@ -70,6 +72,14 @@ const rows: Array<[string, string, string]> = [
   ['Token count', a.counting, b.counting],
 ];
 
+/**
+ * Capability read, used in three places: the section itself, the takeaway
+ * list, and the FAQ payload. Null whenever either model is unmeasured, and
+ * every consumer below has to treat that as the normal case — the benchmark
+ * sync is optional and the page has to stand up without it.
+ */
+const capability = readCapability(a, b);
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -79,6 +89,17 @@ const jsonLd = {
       name: `Is ${a.name} or ${b.name} cheaper?`,
       acceptedAnswer: { '@type': 'Answer', text: verdict(a, b) },
     },
+    // "Which is better" is the higher-volume phrasing of the two, but we only
+    // claim an answer when a third party has actually measured both models.
+    ...(capability?.verdict
+      ? [
+          {
+            '@type': 'Question',
+            name: `Is ${a.name} or ${b.name} better?`,
+            acceptedAnswer: { '@type': 'Answer', text: capability.verdict },
+          },
+        ]
+      : []),
   ],
 };
 ---
@@ -114,11 +135,22 @@ const jsonLd = {
       </table>
     </div>
 
+    <Capability a={a} b={b} />
+
     <h2 class="sub">Which to pick</h2>
     <ul class="takeaways">
       <li>Cheaper input: <strong>{cheaperIn.name}</strong></li>
       <li>Cheaper output: <strong>{cheaperOut.name}</strong></li>
       <li>Larger context: <strong>{biggerCtx.name}</strong></li>
+      {capability?.comparable.map((row) => (
+        <li>
+          Higher {row.label.toLowerCase()} score:{' '}
+          <strong>{(row.b as number) > (row.a as number) ? b.name : a.name}</strong>{' '}
+          <span class="mono">
+            ({(row.a as number).toFixed(1)} vs {(row.b as number).toFixed(1)})
+          </span>
+        </li>
+      ))}
     </ul>
     <p class="caveat">
       List price is not production cost. Output length, cache hit rate, retries

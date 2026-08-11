@@ -1,0 +1,195 @@
+/**
+ * Pulls independent capability measurements from Artificial Analysis and maps
+ * them onto our model slugs.
+ *
+ * Run: npm run sync:bench     (needs ARTIFICIALANALYSIS_API_KEY)
+ *
+ * Why a second sync rather than folding this into `sync-pricing`: the two
+ * sources fail independently and age differently. Prices go stale in weeks and
+ * a stale price is a wrong page, so `validate.mjs` hard-fails past 30 days. A
+ * capability score does not rot — a model that scored 71 last quarter still
+ * scores 71 — it only goes *incomplete* when new models ship. Coupling them
+ * would mean one source being down blocks a build the other could serve.
+ *
+ * This script never invents a number. If the key is absent it exits cleanly
+ * and leaves the existing file alone; if a model has no measurement it simply
+ * has no entry, and the UI drops the section for that pair.
+ */
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const ENDPOINT = 'https://artificialanalysis.ai/api/v2/data/llms/models';
+const ATTRIBUTION_URL = 'https://artificialanalysis.ai/';
+const OUT = resolve(ROOT, 'src/data/benchmarks.json');
+const CACHE = resolve(ROOT, '.cache-aa.json');
+
+/**
+ * Slug pairs our normaliser cannot reach on its own.
+ *
+ * Two cases live here. Re-hosts: Groq and Cerebras serve other labs' weights
+ * under their own product names, so the capability score belongs to the base
+ * model even though the row is a different vendor's. Punctuation: we slugify
+ * `4.7` to `4-7`, Artificial Analysis may keep the dot or drop it entirely.
+ *
+ * Everything in this table is a guess until the first run with a real key
+ * prints the unmatched list — the run reports both sides, so fixing it is
+ * copy-paste rather than detective work. Keys are our slug, values are theirs.
+ */
+const ALIASES = {
+  'llama-3-3-70b-versatile': 'llama-3-3-instruct-70b',
+  'llama-3-1-70b-instruct': 'llama-3-1-instruct-70b',
+  'llama-3-1-8b-instruct': 'llama-3-1-instruct-8b',
+  'llama-3-1-8b-instant': 'llama-3-1-instruct-8b',
+  'zai-glm-4-6': 'glm-4-6',
+  'zai-glm-4-7': 'glm-4-7',
+  'ministral-8b-latest': 'ministral-8b',
+  'mistral-large-3': 'mistral-large-3',
+};
+
+/**
+ * Strip everything that is packaging rather than identity, so `kimi-k2-5` and
+ * `kimi-k2.5` collapse to the same key. Deliberately aggressive: a false match
+ * across two real models would attach the wrong score to a price, so the
+ * report at the end prints every automatic match for eyeballing.
+ */
+function normalise(slug) {
+  return slug
+    .toLowerCase()
+    .replace(/[.\s_]/g, '-')
+    .replace(/-(latest|preview|instruct|versatile|instant|chat|it)\b/g, '')
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function num(v) {
+  return typeof v === 'number' && Number.isFinite(v) ? v : null;
+}
+
+/** Round to one decimal, but keep null as null rather than turning it into 0. */
+function score(v) {
+  const n = num(v);
+  return n === null ? null : Number(n.toFixed(1));
+}
+
+async function loadRaw(key) {
+  try {
+    const res = await fetch(ENDPOINT, {
+      headers: { 'x-api-key': key },
+      signal: AbortSignal.timeout(30_000),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    const text = await res.text();
+    writeFileSync(CACHE, text);
+    return JSON.parse(text);
+  } catch (err) {
+    if (existsSync(CACHE)) {
+      console.warn(`Fetch failed (${err.message}) — using cached copy.`);
+      return JSON.parse(readFileSync(CACHE, 'utf8'));
+    }
+    throw err;
+  }
+}
+
+const key = process.env.ARTIFICIALANALYSIS_API_KEY;
+if (!key) {
+  console.log(
+    'ARTIFICIALANALYSIS_API_KEY not set — skipping benchmark sync.\n' +
+      '  Get a free key at https://artificialanalysis.ai/ and re-run.\n' +
+      `  Existing ${existsSync(OUT) ? 'data left untouched' : 'file not created'}.`
+  );
+  process.exit(0);
+}
+
+const raw = await loadRaw(key);
+// The endpoint has shipped both a bare array and a `{ data: [...] }` envelope.
+const rows = Array.isArray(raw) ? raw : (raw.data ?? raw.models ?? []);
+if (!Array.isArray(rows) || rows.length === 0) {
+  throw new Error('Unexpected API shape — no model array found.');
+}
+
+// Only models that earn a page are worth carrying; the rest is dead weight in
+// the bundle. Read our slugs straight from the pricing snapshot.
+const site = JSON.parse(readFileSync(resolve(ROOT, 'src/data/models.json'), 'utf8'));
+const wanted = new Map(site.models.map((m) => [m.slug, m]));
+
+const byNormalised = new Map();
+for (const row of rows) {
+  const slug = row.slug ?? row.id ?? row.name;
+  if (!slug) continue;
+  byNormalised.set(normalise(String(slug)), row);
+}
+
+const models = {};
+const matched = [];
+const missed = [];
+
+for (const [slug] of wanted) {
+  const alias = ALIASES[slug];
+  const row =
+    (alias && byNormalised.get(normalise(alias))) ?? byNormalised.get(normalise(slug));
+  if (!row) {
+    missed.push(slug);
+    continue;
+  }
+
+  const ev = row.evaluations ?? {};
+  const entry = {
+    aaSlug: row.slug ?? row.id ?? null,
+    via: alias ? 'alias' : 'auto',
+    intelligence: score(ev.artificial_analysis_intelligence_index),
+    coding: score(ev.artificial_analysis_coding_index),
+    math: score(ev.artificial_analysis_math_index),
+    mmluPro: score(ev.mmlu_pro),
+    gpqa: score(ev.gpqa),
+    livecodebench: score(ev.livecodebench),
+    /**
+     * Throughput and latency are per-endpoint, not per-model: the same weights
+     * on Groq and on a first-party API are different numbers. These are the
+     * medians across the providers Artificial Analysis tests, so they are
+     * carried for reference but never used in a verdict.
+     */
+    outputTokensPerSecond: score(row.median_output_tokens_per_second),
+    ttftSeconds: score(row.median_time_to_first_token_seconds),
+  };
+
+  // A row that matched but carries no usable score is noise, not coverage.
+  const hasAny = ['intelligence', 'coding', 'math', 'mmluPro', 'gpqa', 'livecodebench'].some(
+    (k) => entry[k] !== null
+  );
+  if (!hasAny) {
+    missed.push(`${slug} (matched ${entry.aaSlug}, no scores)`);
+    continue;
+  }
+
+  models[slug] = entry;
+  matched.push([slug, entry.aaSlug, entry.via]);
+}
+
+const payload = {
+  updatedAt: new Date().toISOString().slice(0, 10),
+  source: ATTRIBUTION_URL,
+  // Rendered in the footer. The free API's terms require visible attribution.
+  attribution: 'Capability scores measured independently by Artificial Analysis.',
+  scale: '0–100 index; higher is better. Speed fields are medians across providers.',
+  models,
+};
+
+writeFileSync(OUT, JSON.stringify(payload, null, 2) + '\n');
+
+console.log(`Wrote ${Object.keys(models).length} benchmarked models to src/data/benchmarks.json.`);
+console.log('\nMatched:');
+for (const [slug, aa, via] of matched) {
+  console.log(`  ${via === 'alias' ? '=' : ' '} ${slug.padEnd(30)} → ${aa}`);
+}
+if (missed.length) {
+  console.log(`\nUnmatched (${missed.length}) — add to ALIASES if the model exists upstream:`);
+  for (const slug of missed) console.log(`    ${slug}`);
+  console.log('\nTheir slugs, for copy-paste:');
+  console.log(
+    rows
+      .map((r) => `    ${r.slug ?? r.id}`)
+      .sort()
+      .join('\n')
+  );
+}

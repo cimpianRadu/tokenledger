@@ -1,0 +1,268 @@
+---
+/**
+ * Capability-for-the-money block on a comparison page.
+ *
+ * The point of this section is not to republish benchmark scores — every
+ * leaderboard already does that. It is to put the measurement next to the
+ * price we already sync, and say which model that combination favours.
+ *
+ * Renders nothing at all when either model is unmeasured. A comparison with
+ * half the evidence is worse than one that stays a price comparison.
+ */
+import type { Model } from '../lib/models';
+import { readCapability, benchmarkSource, benchmarkUpdatedAt } from '../lib/benchmarks';
+
+interface Props {
+  a: Model;
+  b: Model;
+}
+
+const { a, b } = Astro.props;
+const read = readCapability(a, b);
+
+/**
+ * Bars are drawn on the true 0–100 index, not fitted to the pair's own range.
+ * Fitting would make a two-point gap fill half the row — the flattering
+ * distortion this site exists to avoid. The signed delta beside each pair
+ * carries the precision the axis deliberately gives up.
+ */
+const AXIS = 100;
+const pct = (v: number) => `${Math.max(0, Math.min(100, (v / AXIS) * 100))}%`;
+
+const value =
+  read && read.valueA !== null && read.valueB !== null
+    ? read.valueA >= read.valueB
+      ? { winner: a, points: read.valueA, other: read.valueB }
+      : { winner: b, points: read.valueB, other: read.valueA }
+    : null;
+
+/**
+ * Lenses we cannot draw because one of the two models has no published score.
+ * Named in the note rather than silently dropped — an absent row otherwise
+ * reads as "we checked and they tied".
+ */
+const missing = read ? read.rows.filter((r) => r.delta === null) : [];
+const missingNote = (() => {
+  if (missing.length === 0) return '';
+  const names = missing.map((r) => r.label.toLowerCase());
+  const phrase =
+    names.length > 1
+      ? `${names.slice(0, -1).join(', ')} or ${names[names.length - 1]}`
+      : names[0];
+  const tail = names.length > 1 ? 'those lenses are' : 'that lens is';
+  return ` No published ${phrase} score for one of these models, so ${tail} omitted.`;
+})();
+---
+
+{
+  read && (
+    <section class="cap">
+      <h2 class="cap__title">Capability for the money</h2>
+      <span class="eyebrow">
+        Independent measurement · <a href={benchmarkSource} rel="nofollow noopener">Artificial Analysis</a>
+        {benchmarkUpdatedAt ? ` · read ${benchmarkUpdatedAt}` : ''}
+      </span>
+
+      {read.verdict && <p class="cap__verdict">{read.verdict}</p>}
+
+      <ol class="cap__lenses">
+        {read.comparable.map((row) => {
+          const aLeads = (row.a as number) >= (row.b as number);
+          return (
+            <li class="cap__lens">
+              <div class="cap__head">
+                <h3 class="cap__label">{row.label}</h3>
+                <p class="cap__blurb">{row.blurb}</p>
+              </div>
+
+              <div class="cap__bars">
+                {[
+                  { m: a, v: row.a as number, lead: aLeads },
+                  { m: b, v: row.b as number, lead: !aLeads },
+                ].map(({ m, v, lead }) => (
+                  <div class="cap__row">
+                    <span class="cap__name" title={m.name}>{m.name}</span>
+                    <span class="cap__track">
+                      <span
+                        class={`cap__fill${lead ? ' cap__fill--lead' : ''}`}
+                        style={`width:${pct(v)}`}
+                      />
+                    </span>
+                    <span class="cap__score mono">{v.toFixed(1)}</span>
+                  </div>
+                ))}
+              </div>
+
+              <p class="cap__delta mono">
+                {Math.abs(row.delta as number) < 0.05
+                  ? 'level'
+                  : `${(row.delta as number) > 0 ? b.name : a.name} +${Math.abs(row.delta as number).toFixed(1)}`}
+              </p>
+            </li>
+          );
+        })}
+      </ol>
+
+      {value && (
+        <p class="cap__value">
+          Per dollar of blended price, <strong>{value.winner.name}</strong> returns{' '}
+          <span class="mono">{value.points.toFixed(1)}</span> index points against{' '}
+          <span class="mono">{value.other.toFixed(1)}</span> — the ratio that decides
+          whether the dearer model earns its rate.
+        </p>
+      )}
+
+      <p class="cap__note">
+        Index scores run 0–100 and are measured by a third party, not
+        self-reported by the labs.
+        {missingNote}{' '}
+        A benchmark is not your workload — it narrows the shortlist, it does not
+        pick for you.
+      </p>
+    </section>
+  )
+}
+
+<style>
+  .cap {
+    margin-top: 3.5rem;
+  }
+  /* The eyebrow sits under the heading here: the heading is the claim, the
+     provenance is the qualifier, and reversing them buries the claim. */
+  .cap__title {
+    margin-bottom: 0.5rem;
+  }
+  .cap__verdict {
+    font-size: 1.05rem;
+    color: var(--ink);
+    margin: 1.2rem 0 2rem;
+    max-width: 56ch;
+    border-left: 2px solid var(--rule-strong);
+    padding-left: 1rem;
+  }
+
+  .cap__lenses {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.75rem;
+  }
+  .cap__lens {
+    border-top: 1px solid var(--rule);
+    padding-top: 1rem;
+  }
+  .cap__head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.7rem;
+  }
+  .cap__label {
+    font-size: 1.05rem;
+    margin: 0;
+  }
+  .cap__blurb {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+  }
+
+  /* name · track · score, so both rows share one grid and the bars line up
+     however long the model names are. `display: contents` on the row wrapper
+     is what lets two separate rows resolve against the same columns — and it
+     is why the mobile query can hand the wrapper its own grid instead. */
+  .cap__bars {
+    display: grid;
+    grid-template-columns: minmax(0, max-content) 1fr max-content;
+    align-items: center;
+    gap: 0.4rem 0.75rem;
+    /* Stopped well short of the 68rem measure. Run to full width and a 6-point
+       gap becomes 40px of bar the eye reads as "much better"; held here the
+       chart stays a compact figure and the delta beside it does the precision. */
+    max-width: 40rem;
+  }
+  .cap__row {
+    display: contents;
+  }
+  .cap__name {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    max-width: 18ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cap__track {
+    position: relative;
+    display: block;
+    height: 9px;
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+  }
+  /* `--ink-faint` rather than `--rule-strong`: it holds the same value in both
+     themes, so the trailing bar stays legible on dark paper, where
+     `--rule-strong` drops to #4a4235 and all but vanishes against the track. */
+  .cap__fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--ink-faint);
+    border-radius: 2px 0 0 2px;
+  }
+  /* Capability is encoded by weight, not hue — the cheap→dear ramp already
+     owns colour on this page and must keep meaning price. */
+  .cap__fill--lead {
+    background: var(--ink);
+  }
+  .cap__score {
+    font-size: 0.85rem;
+    min-width: 4ch;
+    text-align: right;
+  }
+  .cap__delta {
+    margin: 0.6rem 0 0;
+    font-size: 0.74rem;
+    color: var(--ink-faint);
+    text-align: right;
+    letter-spacing: 0.03em;
+  }
+
+  .cap__value {
+    margin: 2rem 0 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule-strong);
+    font-size: 0.95rem;
+    max-width: 58ch;
+  }
+  .cap__note {
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+  }
+
+  @media (max-width: 560px) {
+    /* Each model becomes its own two-line block: name and score on one line,
+       the bar full-width under it, rather than a track squeezed to a stub. */
+    .cap__bars {
+      grid-template-columns: 1fr;
+      gap: 0.9rem;
+    }
+    .cap__row {
+      display: grid;
+      grid-template-columns: 1fr max-content;
+      align-items: center;
+      gap: 0.3rem 0.6rem;
+    }
+    .cap__track {
+      grid-column: 1 / -1;
+      order: 1;
+    }
+    .cap__name {
+      max-width: none;
+    }
+  }
+</style>
