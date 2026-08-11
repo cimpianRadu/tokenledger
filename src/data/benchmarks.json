@@ -18,8 +18,8 @@
       "livecodebench": 78.9,
       "tau2": 36.5,
       "intelligenceIndex": 20.1,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "llama-3-1-8b-instant": {
       "aaSlug": "llama-3-1-instruct-8b",
@@ -29,8 +29,8 @@
       "livecodebench": 11.6,
       "tau2": 16.4,
       "intelligenceIndex": 7.4,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "mistral-small-latest": {
       "aaSlug": "mistral-small",
@@ -40,8 +40,8 @@
       "livecodebench": 14.1,
       "tau2": null,
       "intelligenceIndex": 4.3,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "mistral-7b-instruct": {
       "aaSlug": "mistral-7b-instruct",
@@ -51,8 +51,8 @@
       "livecodebench": 4.6,
       "tau2": 0,
       "intelligenceIndex": 1.7,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "mixtral-8x7b-instruct": {
       "aaSlug": "mixtral-8x7b-instruct",
@@ -62,8 +62,8 @@
       "livecodebench": 6.6,
       "tau2": null,
       "intelligenceIndex": 2,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gemini-2-0-flash-lite": {
       "aaSlug": "gemini-2-0-flash-lite-preview",
@@ -73,8 +73,8 @@
       "livecodebench": 17.9,
       "tau2": null,
       "intelligenceIndex": 8.4,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gemini-2-0-flash-lite-001": {
       "aaSlug": "gemini-2-0-flash-lite-001",
@@ -84,8 +84,8 @@
       "livecodebench": 18.5,
       "tau2": null,
       "intelligenceIndex": 8.6,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "llama3-1-8b": {
       "aaSlug": "llama-3-1-instruct-8b",
@@ -95,8 +95,8 @@
       "livecodebench": 11.6,
       "tau2": 16.4,
       "intelligenceIndex": 7.4,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gemini-2-0-flash": {
       "aaSlug": "gemini-2-0-flash",
@@ -106,8 +106,8 @@
       "livecodebench": 33.4,
       "tau2": 29.5,
       "intelligenceIndex": 12.2,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gemini-2-5-flash-lite": {
       "aaSlug": "gemini-2-5-flash-lite",
@@ -117,8 +117,8 @@
       "livecodebench": 40,
       "tau2": 19,
       "intelligenceIndex": 6.7,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-4-1-nano": {
       "aaSlug": "gpt-4-1-nano",
@@ -128,8 +128,8 @@
       "livecodebench": 32.6,
       "tau2": 17.3,
       "intelligenceIndex": 9.6,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "devstral-small-2505": {
       "aaSlug": "devstral-small-2505",
@@ -139,8 +139,8 @@
       "livecodebench": 25.8,
       "tau2": 38,
       "intelligenceIndex": 11.8,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "devstral-small-latest": {
       "aaSlug": "devstral-small",
@@ -150,8 +150,8 @@
       "livecodebench": 25.4,
       "tau2": 28.4,
       "intelligenceIndex": 9.1,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "mistral-small": {
       "aaSlug": "mistral-small",
@@ -161,8 +161,8 @@
       "livecodebench": 14.1,
       "tau2": null,
       "intelligenceIndex": 4.3,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "deepseek-v4-flash": {
       "aaSlug": "deepseek-v4-flash",
@@ -183,8 +183,8 @@
       "livecodebench": 4.8,
       "tau2": null,
       "intelligenceIndex": 1.7,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-4o-mini": {
       "aaSlug": "gpt-4o-mini",
@@ -194,8 +194,8 @@
       "livecodebench": 23.4,
       "tau2": null,
       "intelligenceIndex": 6.7,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "ministral-8b-latest": {
       "aaSlug": "ministral-3-8b",
@@ -216,8 +216,8 @@
       "livecodebench": null,
       "tau2": 76,
       "intelligenceIndex": 39.7,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5-6-luna": {
       "aaSlug": "gpt-5-6-luna",
@@ -238,8 +238,8 @@
       "livecodebench": 6.2,
       "tau2": null,
       "intelligenceIndex": 2.3,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "jamba-mini-1-7": {
       "aaSlug": "jamba-1-7-mini",
@@ -249,8 +249,8 @@
       "livecodebench": 6.1,
       "tau2": 12.6,
       "intelligenceIndex": 2.3,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "llama-3-1-8b-instruct": {
       "aaSlug": "llama-3-1-instruct-8b",
@@ -260,8 +260,8 @@
       "livecodebench": 11.6,
       "tau2": 16.4,
       "intelligenceIndex": 7.4,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "grok-4-1-fast": {
       "aaSlug": "grok-4-1-fast",
@@ -271,8 +271,8 @@
       "livecodebench": 39.9,
       "tau2": 63.7,
       "intelligenceIndex": 17,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "grok-4-1-fast-reasoning": {
       "aaSlug": "grok-4-1-fast-reasoning",
@@ -282,8 +282,8 @@
       "livecodebench": 82.2,
       "tau2": 93.3,
       "intelligenceIndex": 31.3,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "grok-4-1-fast-reasoning-latest": {
       "aaSlug": "grok-4-1-fast-reasoning",
@@ -293,8 +293,8 @@
       "livecodebench": 82.2,
       "tau2": 93.3,
       "intelligenceIndex": 31.3,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "grok-4-fast-reasoning": {
       "aaSlug": "grok-4-fast-reasoning",
@@ -304,8 +304,8 @@
       "livecodebench": 83.2,
       "tau2": 65.8,
       "intelligenceIndex": 27.9,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "grok-code-fast-1": {
       "aaSlug": "grok-code-fast-1",
@@ -315,8 +315,8 @@
       "livecodebench": 65.7,
       "tau2": 75.7,
       "intelligenceIndex": 22,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gemini-3-1-flash-lite": {
       "aaSlug": "gemini-3-1-flash-lite-preview",
@@ -326,8 +326,8 @@
       "livecodebench": null,
       "tau2": 31.3,
       "intelligenceIndex": 25.6,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gemini-3-1-flash-lite-preview": {
       "aaSlug": "gemini-3-1-flash-lite-preview",
@@ -337,8 +337,8 @@
       "livecodebench": null,
       "tau2": 31.3,
       "intelligenceIndex": 25.6,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5-mini": {
       "aaSlug": "gpt-5-mini",
@@ -348,8 +348,8 @@
       "livecodebench": 83.8,
       "tau2": 68.4,
       "intelligenceIndex": 25.8,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "deepseek-v3": {
       "aaSlug": "deepseek-v3",
@@ -359,8 +359,8 @@
       "livecodebench": 35.9,
       "tau2": 22.8,
       "intelligenceIndex": 14.2,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "deepseek-v3-2": {
       "aaSlug": "deepseek-v3-2",
@@ -370,8 +370,8 @@
       "livecodebench": 59.3,
       "tau2": 78.9,
       "intelligenceIndex": 25.1,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gemini-2-5-flash": {
       "aaSlug": "gemini-2-5-flash",
@@ -381,8 +381,8 @@
       "livecodebench": 49.5,
       "tau2": 14.9,
       "intelligenceIndex": 14.2,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gemini-3-5-flash-lite": {
       "aaSlug": "gemini-3-5-flash-lite",
@@ -414,8 +414,8 @@
       "livecodebench": 28.8,
       "tau2": null,
       "intelligenceIndex": 8.5,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-4-1-mini": {
       "aaSlug": "gpt-4-1-mini",
@@ -425,8 +425,8 @@
       "livecodebench": 48.3,
       "tau2": 52.9,
       "intelligenceIndex": 14.8,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "devstral-medium-latest": {
       "aaSlug": "devstral-medium",
@@ -436,8 +436,8 @@
       "livecodebench": 33.7,
       "tau2": 19.9,
       "intelligenceIndex": 12.4,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "deepseek-v4-pro": {
       "aaSlug": "deepseek-v4-pro",
@@ -458,8 +458,8 @@
       "livecodebench": 79.7,
       "tau2": 43.3,
       "intelligenceIndex": 27.9,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-3-5-turbo": {
       "aaSlug": "gpt-35-turbo",
@@ -469,8 +469,8 @@
       "livecodebench": null,
       "tau2": null,
       "intelligenceIndex": 3.2,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "magistral-small-latest": {
       "aaSlug": "magistral-small",
@@ -480,8 +480,8 @@
       "livecodebench": 51.4,
       "tau2": 26.6,
       "intelligenceIndex": 10.6,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "mistral-large-3": {
       "aaSlug": "mistral-large-3",
@@ -502,8 +502,8 @@
       "livecodebench": 17.8,
       "tau2": null,
       "intelligenceIndex": 4.1,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "deepseek-r1": {
       "aaSlug": "deepseek-r1",
@@ -513,8 +513,8 @@
       "livecodebench": 77,
       "tau2": 36.5,
       "intelligenceIndex": 20.4,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "llama-3-3-70b-versatile": {
       "aaSlug": "llama-3-3-instruct-70b",
@@ -535,8 +535,8 @@
       "livecodebench": 23.2,
       "tau2": 15.2,
       "intelligenceIndex": 6.5,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "kimi-k2-0905-preview": {
       "aaSlug": "kimi-k2-0905",
@@ -546,8 +546,8 @@
       "livecodebench": 61,
       "tau2": 73.4,
       "intelligenceIndex": 24,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "kimi-k2-thinking": {
       "aaSlug": "kimi-k2-thinking",
@@ -557,8 +557,8 @@
       "livecodebench": 85.3,
       "tau2": 93,
       "intelligenceIndex": 33.5,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "kimi-k2-5": {
       "aaSlug": "kimi-k2-5",
@@ -568,8 +568,8 @@
       "livecodebench": null,
       "tau2": 95.9,
       "intelligenceIndex": 36,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "llama-2-70b-chat": {
       "aaSlug": "llama-2-chat-70b",
@@ -579,8 +579,8 @@
       "livecodebench": 9.8,
       "tau2": null,
       "intelligenceIndex": 2.6,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5-4-mini": {
       "aaSlug": "gpt-5-4-mini",
@@ -590,8 +590,8 @@
       "livecodebench": null,
       "tau2": 83.3,
       "intelligenceIndex": 40.9,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "llama-3-3-70b": {
       "aaSlug": "llama-3-3-instruct-70b",
@@ -612,8 +612,8 @@
       "livecodebench": null,
       "tau2": 95.9,
       "intelligenceIndex": 45.1,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "llama-3-1-70b-instruct": {
       "aaSlug": "llama-3-1-instruct-70b",
@@ -623,8 +623,8 @@
       "livecodebench": 23.2,
       "tau2": 15.2,
       "intelligenceIndex": 6.5,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "sonar": {
       "aaSlug": "sonar",
@@ -634,8 +634,8 @@
       "livecodebench": 29.5,
       "tau2": null,
       "intelligenceIndex": 9.4,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "sonar-reasoning": {
       "aaSlug": "sonar-reasoning",
@@ -645,8 +645,8 @@
       "livecodebench": null,
       "tau2": null,
       "intelligenceIndex": 11.6,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "o3-mini": {
       "aaSlug": "o3-mini",
@@ -656,8 +656,8 @@
       "livecodebench": 71.7,
       "tau2": 28.7,
       "intelligenceIndex": 19.2,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "o4-mini": {
       "aaSlug": "o4-mini",
@@ -667,8 +667,8 @@
       "livecodebench": 85.9,
       "tau2": 55.6,
       "intelligenceIndex": 26.1,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gemini-2-5-pro": {
       "aaSlug": "gemini-2-5-pro",
@@ -678,8 +678,8 @@
       "livecodebench": 80.1,
       "tau2": 54.1,
       "intelligenceIndex": 25.9,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5": {
       "aaSlug": "gpt-5",
@@ -689,8 +689,8 @@
       "livecodebench": 84.6,
       "tau2": 84.8,
       "intelligenceIndex": 35.3,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5-chat": {
       "aaSlug": "gpt-5",
@@ -700,8 +700,8 @@
       "livecodebench": 84.6,
       "tau2": 84.8,
       "intelligenceIndex": 35.3,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5-chat-latest": {
       "aaSlug": "gpt-5",
@@ -711,8 +711,8 @@
       "livecodebench": 84.6,
       "tau2": 84.8,
       "intelligenceIndex": 35.3,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5-1": {
       "aaSlug": "gpt-5-1",
@@ -722,8 +722,8 @@
       "livecodebench": 86.8,
       "tau2": 81.9,
       "intelligenceIndex": 37.5,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5-1-chat-latest": {
       "aaSlug": "gpt-5-1",
@@ -733,8 +733,8 @@
       "livecodebench": 86.8,
       "tau2": 81.9,
       "intelligenceIndex": 37.5,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "grok-4-3": {
       "aaSlug": "grok-4-3",
@@ -744,8 +744,8 @@
       "livecodebench": null,
       "tau2": 97.7,
       "intelligenceIndex": 37.9,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "grok-4-3-latest": {
       "aaSlug": "grok-4-3",
@@ -755,8 +755,8 @@
       "livecodebench": null,
       "tau2": 97.7,
       "intelligenceIndex": 37.9,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gemini-3-5-flash": {
       "aaSlug": "gemini-3-5-flash",
@@ -766,8 +766,8 @@
       "livecodebench": null,
       "tau2": 95.3,
       "intelligenceIndex": 52,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gemini-3-6-flash": {
       "aaSlug": "gemini-3-6-flash",
@@ -799,8 +799,8 @@
       "livecodebench": 9.9,
       "tau2": null,
       "intelligenceIndex": 3.2,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5-2": {
       "aaSlug": "gpt-5-2",
@@ -810,8 +810,8 @@
       "livecodebench": 88.9,
       "tau2": 84.8,
       "intelligenceIndex": 43.3,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5-2-chat-latest": {
       "aaSlug": "gpt-5-2",
@@ -821,8 +821,8 @@
       "livecodebench": 88.9,
       "tau2": 84.8,
       "intelligenceIndex": 43.3,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "claude-sonnet-5": {
       "aaSlug": "claude-sonnet-5",
@@ -843,8 +843,8 @@
       "livecodebench": 91.7,
       "tau2": 87.1,
       "intelligenceIndex": 40.6,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gemini-3-1-pro-preview": {
       "aaSlug": "gemini-3-1-pro-preview",
@@ -865,8 +865,8 @@
       "livecodebench": 45.7,
       "tau2": 47.1,
       "intelligenceIndex": 19.6,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5-6-terra": {
       "aaSlug": "gpt-5-6-terra",
@@ -887,8 +887,8 @@
       "livecodebench": 14.3,
       "tau2": null,
       "intelligenceIndex": 4.8,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "jamba-large-1-6": {
       "aaSlug": "jamba-1-6-large",
@@ -898,8 +898,8 @@
       "livecodebench": 17.2,
       "tau2": null,
       "intelligenceIndex": 4.7,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "jamba-large-1-7": {
       "aaSlug": "jamba-1-7-large",
@@ -931,8 +931,8 @@
       "livecodebench": 52.7,
       "tau2": 23.1,
       "intelligenceIndex": 12.5,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "pixtral-large-2411": {
       "aaSlug": "pixtral-large-2411",
@@ -942,8 +942,8 @@
       "livecodebench": 26.1,
       "tau2": 36.5,
       "intelligenceIndex": 8,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "o3": {
       "aaSlug": "o3",
@@ -964,8 +964,8 @@
       "livecodebench": null,
       "tau2": 96.5,
       "intelligenceIndex": 37.4,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "grok-4-5": {
       "aaSlug": "grok-4-5",
@@ -997,8 +997,8 @@
       "livecodebench": 56.1,
       "tau2": 76.9,
       "intelligenceIndex": 23.4,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "zai-glm-4-7": {
       "aaSlug": "glm-4-7",
@@ -1008,8 +1008,8 @@
       "livecodebench": 89.4,
       "tau2": 95.9,
       "intelligenceIndex": 34.5,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "command-r-plus": {
       "aaSlug": "command-r-plus-04-2024",
@@ -1019,8 +1019,8 @@
       "livecodebench": 12.2,
       "tau2": null,
       "intelligenceIndex": 2.6,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-4o": {
       "aaSlug": "gpt-4o",
@@ -1030,8 +1030,8 @@
       "livecodebench": 30.9,
       "tau2": 25.1,
       "intelligenceIndex": 11.1,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5-4": {
       "aaSlug": "gpt-5-4",
@@ -1041,8 +1041,8 @@
       "livecodebench": null,
       "tau2": 87.1,
       "intelligenceIndex": 53.1,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "mistral-medium": {
       "aaSlug": "mistral-medium",
@@ -1052,8 +1052,8 @@
       "livecodebench": 9.9,
       "tau2": null,
       "intelligenceIndex": 3.2,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "claude-sonnet-4-6": {
       "aaSlug": "claude-sonnet-4-6",
@@ -1063,8 +1063,8 @@
       "livecodebench": null,
       "tau2": 79.5,
       "intelligenceIndex": 36.8,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "mistral-large-2407": {
       "aaSlug": "mistral-large-2407",
@@ -1074,8 +1074,8 @@
       "livecodebench": 26.7,
       "tau2": 33,
       "intelligenceIndex": 7,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "sonar-pro": {
       "aaSlug": "sonar-pro",
@@ -1085,8 +1085,8 @@
       "livecodebench": 27.5,
       "tau2": null,
       "intelligenceIndex": 9.1,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "grok-3": {
       "aaSlug": "grok-3",
@@ -1096,8 +1096,8 @@
       "livecodebench": 42.5,
       "tau2": 48.8,
       "intelligenceIndex": 18.6,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "grok-3-latest": {
       "aaSlug": "grok-3",
@@ -1107,8 +1107,8 @@
       "livecodebench": 42.5,
       "tau2": 48.8,
       "intelligenceIndex": 18.6,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "grok-4": {
       "aaSlug": "grok-4",
@@ -1118,8 +1118,8 @@
       "livecodebench": 81.9,
       "tau2": 74.9,
       "intelligenceIndex": 34.1,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "grok-4-latest": {
       "aaSlug": "grok-4",
@@ -1129,8 +1129,8 @@
       "livecodebench": 81.9,
       "tau2": 74.9,
       "intelligenceIndex": 34.1,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "claude-opus-4-5": {
       "aaSlug": "claude-opus-4-5",
@@ -1140,8 +1140,8 @@
       "livecodebench": 73.8,
       "tau2": 86.3,
       "intelligenceIndex": 35.6,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "claude-opus-4-6": {
       "aaSlug": "claude-opus-4-6",
@@ -1151,8 +1151,8 @@
       "livecodebench": null,
       "tau2": 84.8,
       "intelligenceIndex": 38.8,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "claude-opus-4-7": {
       "aaSlug": "claude-opus-4-7",
@@ -1162,8 +1162,8 @@
       "livecodebench": null,
       "tau2": 88.6,
       "intelligenceIndex": 55,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "claude-opus-4-8": {
       "aaSlug": "claude-opus-4-8",
@@ -1173,8 +1173,8 @@
       "livecodebench": null,
       "tau2": 94.4,
       "intelligenceIndex": 57.3,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "claude-opus-5": {
       "aaSlug": "claude-opus-5",
@@ -1195,8 +1195,8 @@
       "livecodebench": 33.4,
       "tau2": null,
       "intelligenceIndex": 8.4,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5-5": {
       "aaSlug": "gpt-5-5",
@@ -1206,8 +1206,8 @@
       "livecodebench": null,
       "tau2": 93.9,
       "intelligenceIndex": 56.3,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5-6": {
       "aaSlug": "gpt-5-6-sol",
@@ -1239,8 +1239,8 @@
       "livecodebench": 24.1,
       "tau2": null,
       "intelligenceIndex": 7.3,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "claude-fable-5": {
       "aaSlug": "claude-fable-5",
@@ -1261,8 +1261,8 @@
       "livecodebench": 29.1,
       "tau2": null,
       "intelligenceIndex": 7.7,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-4-turbo-preview": {
       "aaSlug": "gpt-4-turbo",
@@ -1272,8 +1272,8 @@
       "livecodebench": 29.1,
       "tau2": null,
       "intelligenceIndex": 7.7,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-4": {
       "aaSlug": "gpt-4",
@@ -1283,8 +1283,8 @@
       "livecodebench": null,
       "tau2": null,
       "intelligenceIndex": 6.8,
-      "outputTokensPerSecond": 0,
-      "ttftSeconds": 0
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     }
   }
 }
