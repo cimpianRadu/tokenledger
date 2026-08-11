@@ -663,8 +663,8 @@ export default function Ledger({ models, providers, defaults, active }: Props) {
         .pcard__mark { display: inline-flex; color: var(--ink-soft); flex: none; }
         .pcard[data-on="true"] .pcard__mark { color: var(--accent); }
         .pcard__brand {
-          font-family: var(--font-display); font-weight: 700; font-size: .98rem;
-          letter-spacing: -.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+          font-family: var(--font-display); font-weight: 400; font-size: 1.12rem;
+          overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
         .pcard__state {
           margin-left: auto; flex: none; width: 1.25rem; height: 1.25rem;

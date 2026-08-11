@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "sync": "node scripts/sync-pricing.mjs",
-    "og": "node scripts/make-og.mjs",
+    "brand": "node scripts/make-brand.mjs",
     "check": "node scripts/validate.mjs",
     "build": "astro build && node scripts/validate.mjs --dist",
     "preview": "astro preview"

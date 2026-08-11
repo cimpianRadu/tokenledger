@@ -1,6 +1,5 @@
 ---
 import { providers, models, updatedAt, sourceUrl } from '../lib/models';
-import Mark from './Mark.astro';
 
 const exactCount = models.filter((m) => m.counting === 'exact').length;
 const tierCount = models.filter((m) => m.tier).length;
@@ -11,10 +10,7 @@ const year = new Date().getFullYear();
   <div class="wrap">
     <div class="foot__grid">
       <div class="foot__brand">
-        <span class="foot__mark">
-          <Mark size={20} />
-          <span class="foot__mark-text">price<span>per</span>token</span>
-        </span>
+        <span class="foot__mark">price<em>per</em>token</span>
         <p>
           Count the tokens in a prompt, then see what it costs across
           {models.length} models. The tokenizer runs in your browser — nothing
@@ -112,19 +108,19 @@ const year = new Date().getFullYear();
   }
 
   .foot__mark {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
+    display: block;
     font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.05rem;
-    letter-spacing: -0.03em;
+    font-weight: 400;
+    font-size: 1.4rem;
+    line-height: 1;
     color: var(--ink);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.85rem;
   }
-  /* Only the connector word, not the wrapper the mark sits beside. */
-  .foot__mark-text > span {
+  .foot__mark em {
+    font-style: italic;
+    font-size: 0.66em;
     color: var(--accent);
+    padding-inline: 0.1em;
   }
   .foot__brand p {
     max-width: 40ch;

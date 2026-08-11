@@ -1,7 +1,6 @@
 ---
 import '../styles/global.css';
 import Footer from '../components/Footer.astro';
-import Mark from '../components/Mark.astro';
 import { providers } from '../lib/models';
 import { SITE } from '../../site.config.mjs';
 
@@ -48,7 +47,8 @@ const crumbLd = breadcrumbs && {
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical.href} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -67,14 +67,14 @@ const crumbLd = breadcrumbs && {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Public+Sans:wght@400;500;600&display=swap"
       media="print"
       onload="this.media='all'"
     />
     <noscript>
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Public+Sans:wght@400;500;600&display=swap"
       />
     </noscript>
     {jsonLd && (
@@ -96,10 +96,7 @@ const crumbLd = breadcrumbs && {
   <body>
     <header class="site-header">
       <div class="wrap site-header__inner">
-        <a class="wordmark" href="/">
-          <Mark />
-          <span class="wordmark__text">price<span>per</span>token</span>
-        </a>
+        <a class="wordmark" href="/">price<em>per</em>token</a>
         <nav class="nav" aria-label="Providers">
           {providers.slice(0, 5).map((p) => (
             <a href={`/pricing/${p.slug}`}>{p.brand}</a>

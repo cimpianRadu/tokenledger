@@ -121,13 +121,14 @@ const jsonLd = {
   .hero {
     padding-top: 3.5rem;
   }
+  /* Weight 400: the display face has no other, and asking for one gets a
+     synthesised bold rather than a fallback. */
   .hero__sub {
     font-family: var(--font-display);
-    font-size: clamp(1.15rem, 2.4vw, 1.5rem);
-    font-weight: 500;
+    font-size: clamp(1.35rem, 2.8vw, 1.8rem);
+    font-weight: 400;
     color: var(--ink-soft);
-    letter-spacing: -0.015em;
-    margin: 0.5rem 0 0;
+    margin: 0.6rem 0 0;
   }
   .hero__lede {
     font-size: 1.08rem;

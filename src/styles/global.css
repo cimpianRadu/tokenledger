@@ -1,25 +1,29 @@
 /* Fonts load via <link media="print" onload> in Base.astro — an @import here
    blocks first paint until Google Fonts responds. */
 :root {
-  /* Ledger paper — cool, not cream. */
-  --paper: #eef1f4;
-  --paper-raised: #f7f9fb;
-  --ink: #14181d;
-  --ink-soft: #4d5866;
-  --ink-faint: #7d8896;
-  --rule: #cbd4dd;
-  --rule-strong: #9aa8b6;
+  /* Receipt stock — warm, printed, not a dashboard. */
+  --paper: #f7f3ea;
+  --paper-raised: #fdfbf5;
+  --ink: #191612;
+  --ink-soft: #6b6459;
+  --ink-faint: #8a8172;
+  --rule: #ded5c4;
+  --rule-strong: #bbb09b;
 
-  /* Cost scale. Runs cheap -> dear; it encodes data, not mood. */
-  --cheap: #0f766e;
-  --mid: #2b4fd8;
-  --dear: #b0184b;
+  /*
+   * Cost scale, cheap -> dear. Held one hue away from --accent on purpose:
+   * the brand red and the "this is the expensive one" red must not be the
+   * same colour, or the wordmark starts looking like a warning.
+   */
+  --cheap: #2f6b47;
+  --mid: #a8791f;
+  --dear: #a8152f;
 
-  --accent: #2b4fd8;
-  --exact: #0f766e;
-  --estimated: #8a6d1f;
+  --accent: #d4452c;
+  --exact: #2f6b47;
+  --estimated: #a8791f;
 
-  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-display: 'Instrument Serif', Georgia, serif;
   --font-body: 'Public Sans', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
@@ -30,19 +34,19 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #10141a;
-    --paper-raised: #171d25;
-    --ink: #e7edf3;
-    --ink-soft: #a3b0be;
-    --ink-faint: #74818f;
-    --rule: #29323d;
-    --rule-strong: #3d4854;
-    --cheap: #3fbfa8;
-    --mid: #7d9cff;
-    --dear: #ff6f9a;
-    --accent: #7d9cff;
-    --exact: #3fbfa8;
-    --estimated: #d8b45a;
+    --paper: #17140f;
+    --paper-raised: #201c15;
+    --ink: #f2ece0;
+    --ink-soft: #b3a894;
+    --ink-faint: #8a8172;
+    --rule: #322c22;
+    --rule-strong: #4a4235;
+    --cheap: #5cbb84;
+    --mid: #d9a441;
+    --dear: #f2607a;
+    --accent: #f2705a;
+    --exact: #5cbb84;
+    --estimated: #d9a441;
   }
 }
 
@@ -72,28 +76,31 @@ a {
   text-decoration-thickness: 1px;
 }
 
+/*
+ * Instrument Serif ships one weight. Nothing here may ask for 700/800 — the
+ * browser would synthesise a smeared fake bold. Size carries the hierarchy
+ * instead, a notch larger than the old grotesque since a light serif reads
+ * smaller at the same pixel height.
+ */
 h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.005em;
   margin: 0;
   text-wrap: balance;
 }
 
 h1 {
-  font-size: clamp(2.1rem, 5.2vw, 3.4rem);
+  font-size: clamp(2.5rem, 6vw, 4rem);
 }
 h2 {
-  font-size: clamp(1.4rem, 2.8vw, 1.85rem);
-  letter-spacing: -0.015em;
+  font-size: clamp(1.7rem, 3.2vw, 2.25rem);
 }
 h3 {
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: 1.3rem;
 }
 
 p {
@@ -228,20 +235,25 @@ p {
   flex-wrap: wrap;
 }
 
+/*
+ * price·per·token. The connector is set smaller, italic and in the accent —
+ * it is an operator, not a third word, and typing it that way is the whole
+ * idea: the name is the unit the site measures.
+ */
 .wordmark {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.15rem;
-  letter-spacing: -0.03em;
+  font-weight: 400;
+  font-size: 1.5rem;
+  line-height: 1;
   color: var(--ink);
   text-decoration: none;
+  white-space: nowrap;
 }
-/* Only the connector word, not the wrapper the mark sits beside. */
-.wordmark__text > span {
+.wordmark em {
+  font-style: italic;
+  font-size: 0.66em;
   color: var(--accent);
+  padding-inline: 0.1em;
 }
 
 /* Seven links do not fit a phone in one row, and the header is the one place
