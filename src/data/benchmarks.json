@@ -197,6 +197,17 @@
       "outputTokensPerSecond": 0,
       "ttftSeconds": 0
     },
+    "ministral-8b-latest": {
+      "aaSlug": "ministral-3-8b",
+      "via": "alias",
+      "ifbench": 29.1,
+      "gpqa": 47.1,
+      "livecodebench": 30.3,
+      "tau2": 26.6,
+      "intelligenceIndex": 9,
+      "outputTokensPerSecond": 123.5,
+      "ttftSeconds": 0.5
+    },
     "gpt-5-4-nano": {
       "aaSlug": "gpt-5-4-nano",
       "via": "auto",
@@ -1197,6 +1208,17 @@
       "intelligenceIndex": 56.3,
       "outputTokensPerSecond": 0,
       "ttftSeconds": 0
+    },
+    "gpt-5-6": {
+      "aaSlug": "gpt-5-6-sol",
+      "via": "alias",
+      "ifbench": 72.7,
+      "gpqa": 94.1,
+      "livecodebench": null,
+      "tau2": 85.1,
+      "intelligenceIndex": 60.9,
+      "outputTokensPerSecond": 68.8,
+      "ttftSeconds": 74.9
     },
     "gpt-5-6-sol": {
       "aaSlug": "gpt-5-6-sol",
