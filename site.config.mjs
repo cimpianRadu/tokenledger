@@ -11,7 +11,10 @@
 export const SITE = 'https://pricepertoken.ai';
 
 /** Shown on the contact page. Affiliate programmes verify this address. */
-export const EMAIL = 'hello@example.com';
+export const EMAIL = 'hello@pricepertoken.ai';
 
-/** Named as the data controller on the privacy page. */
-export const OPERATOR = 'the site operator';
+/**
+ * Named as the data controller on the privacy page. Legal-entity names are not
+ * translated, so the Romanian form stays as it is on the registration.
+ */
+export const OPERATOR = 'Radu Gheorghe Cimpian PFA';

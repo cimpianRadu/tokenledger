@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-30",
+  "updatedAt": "2026-08-11",
   "source": "https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json",
   "providers": [
     {
@@ -24,7 +24,7 @@
       "name": "Google",
       "brand": "Gemini",
       "counting": "estimated",
-      "modelCount": 32
+      "modelCount": 34
     },
     {
       "key": "deepseek",
@@ -983,7 +983,7 @@
       "cacheWrite1h": null,
       "tier": null,
       "deprecatedOn": null,
-      "contextWindow": 1050000,
+      "contextWindow": 272000,
       "maxOutput": 128000,
       "vision": true,
       "functionCalling": true,
@@ -991,6 +991,34 @@
       "snapshots": [
         "gpt-5.4-nano-2026-03-17"
       ]
+    },
+    {
+      "id": "gpt-5.6-luna",
+      "slug": "gpt-5-6-luna",
+      "name": "gpt-5.6-luna",
+      "provider": "openai",
+      "providerName": "OpenAI",
+      "providerSlug": "openai",
+      "brand": "GPT",
+      "tokenizer": "o200k_base",
+      "counting": "exact",
+      "input": 0.2,
+      "output": 1.2,
+      "cachedInput": 0.02,
+      "cacheWrite": 0.25,
+      "cacheWrite1h": null,
+      "tier": {
+        "threshold": 272000,
+        "input": 0.4,
+        "output": 1.8,
+        "cachedInput": 0.04
+      },
+      "deprecatedOn": null,
+      "contextWindow": 1050000,
+      "maxOutput": 128000,
+      "vision": true,
+      "functionCalling": true,
+      "reasoning": true
     },
     {
       "id": "jamba-1.5",
@@ -3021,7 +3049,7 @@
       "cacheWrite1h": null,
       "tier": null,
       "deprecatedOn": null,
-      "contextWindow": 1050000,
+      "contextWindow": 272000,
       "maxOutput": 128000,
       "vision": true,
       "functionCalling": true,
@@ -3103,6 +3131,29 @@
       ]
     },
     {
+      "id": "gemini/gemini-robotics-er-1.6-preview",
+      "slug": "gemini-robotics-er-1-6-preview",
+      "name": "gemini-robotics-er-1.6-preview",
+      "provider": "gemini",
+      "providerName": "Google",
+      "providerSlug": "gemini",
+      "brand": "Gemini",
+      "tokenizer": null,
+      "counting": "estimated",
+      "input": 1,
+      "output": 5,
+      "cachedInput": null,
+      "cacheWrite": null,
+      "cacheWrite1h": null,
+      "tier": null,
+      "deprecatedOn": null,
+      "contextWindow": 131072,
+      "maxOutput": 65536,
+      "vision": true,
+      "functionCalling": true,
+      "reasoning": true
+    },
+    {
       "id": "gpt-3.5-turbo-1106",
       "slug": "gpt-3-5-turbo-1106",
       "name": "gpt-3.5-turbo-1106",
@@ -3124,34 +3175,6 @@
       "vision": false,
       "functionCalling": true,
       "reasoning": false
-    },
-    {
-      "id": "gpt-5.6-luna",
-      "slug": "gpt-5-6-luna",
-      "name": "gpt-5.6-luna",
-      "provider": "openai",
-      "providerName": "OpenAI",
-      "providerSlug": "openai",
-      "brand": "GPT",
-      "tokenizer": "o200k_base",
-      "counting": "exact",
-      "input": 1,
-      "output": 6,
-      "cachedInput": 0.1,
-      "cacheWrite": 1.25,
-      "cacheWrite1h": null,
-      "tier": {
-        "threshold": 272000,
-        "input": 2,
-        "output": 9,
-        "cachedInput": 0.2
-      },
-      "deprecatedOn": null,
-      "contextWindow": 1050000,
-      "maxOutput": 128000,
-      "vision": true,
-      "functionCalling": true,
-      "reasoning": true
     },
     {
       "id": "mistral/codestral-2405",
@@ -4071,6 +4094,29 @@
       "reasoning": true
     },
     {
+      "id": "gemini/gemini-robotics-er-2-preview",
+      "slug": "gemini-robotics-er-2-preview",
+      "name": "gemini-robotics-er-2-preview",
+      "provider": "gemini",
+      "providerName": "Google",
+      "providerSlug": "gemini",
+      "brand": "Gemini",
+      "tokenizer": null,
+      "counting": "estimated",
+      "input": 2,
+      "output": 10,
+      "cachedInput": 0.2,
+      "cacheWrite": null,
+      "cacheWrite1h": null,
+      "tier": null,
+      "deprecatedOn": null,
+      "contextWindow": 131072,
+      "maxOutput": 65536,
+      "vision": true,
+      "functionCalling": true,
+      "reasoning": true
+    },
+    {
       "id": "gpt-4.1",
       "slug": "gpt-4-1",
       "name": "gpt-4.1",
@@ -4095,6 +4141,34 @@
       "snapshots": [
         "gpt-4.1-2025-04-14"
       ]
+    },
+    {
+      "id": "gpt-5.6-terra",
+      "slug": "gpt-5-6-terra",
+      "name": "gpt-5.6-terra",
+      "provider": "openai",
+      "providerName": "OpenAI",
+      "providerSlug": "openai",
+      "brand": "GPT",
+      "tokenizer": "o200k_base",
+      "counting": "exact",
+      "input": 2,
+      "output": 12,
+      "cachedInput": 0.2,
+      "cacheWrite": 2.5,
+      "cacheWrite1h": null,
+      "tier": {
+        "threshold": 272000,
+        "input": 4,
+        "output": 18,
+        "cachedInput": 0.4
+      },
+      "deprecatedOn": null,
+      "contextWindow": 1050000,
+      "maxOutput": 128000,
+      "vision": true,
+      "functionCalling": true,
+      "reasoning": true
     },
     {
       "id": "jamba-1.5-large",
@@ -5033,34 +5107,6 @@
       "snapshots": [
         "gpt-5.4-2026-03-05"
       ]
-    },
-    {
-      "id": "gpt-5.6-terra",
-      "slug": "gpt-5-6-terra",
-      "name": "gpt-5.6-terra",
-      "provider": "openai",
-      "providerName": "OpenAI",
-      "providerSlug": "openai",
-      "brand": "GPT",
-      "tokenizer": "o200k_base",
-      "counting": "exact",
-      "input": 2.5,
-      "output": 15,
-      "cachedInput": 0.25,
-      "cacheWrite": 3.125,
-      "cacheWrite1h": null,
-      "tier": {
-        "threshold": 272000,
-        "input": 5,
-        "output": 22.5,
-        "cachedInput": 0.5
-      },
-      "deprecatedOn": null,
-      "contextWindow": 1050000,
-      "maxOutput": 128000,
-      "vision": true,
-      "functionCalling": true,
-      "reasoning": true
     },
     {
       "id": "gpt-audio",
