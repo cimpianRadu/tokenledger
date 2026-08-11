@@ -144,10 +144,11 @@ const jsonLd = {
       <li>Larger context: <strong>{biggerCtx.name}</strong></li>
       {capability?.comparable.map((row) => (
         <li>
-          Higher {row.label.toLowerCase()} score:{' '}
+          Better at {row.label.toLowerCase()}:{' '}
           <strong>{(row.b as number) > (row.a as number) ? b.name : a.name}</strong>{' '}
           <span class="mono">
-            ({(row.a as number).toFixed(1)} vs {(row.b as number).toFixed(1)})
+            ({(row.a as number).toFixed(1)}% vs {(row.b as number).toFixed(1)}% on{' '}
+            {row.source})
           </span>
         </li>
       ))}

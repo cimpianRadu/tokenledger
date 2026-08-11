@@ -21,10 +21,15 @@ const { a, b } = Astro.props;
 const read = readCapability(a, b);
 
 /**
- * Bars are drawn on the true 0–100 index, not fitted to the pair's own range.
+ * Bars run the full 0–100% of each test, not fitted to the pair's own range.
  * Fitting would make a two-point gap fill half the row — the flattering
  * distortion this site exists to avoid. The signed delta beside each pair
  * carries the precision the axis deliberately gives up.
+ *
+ * A shared axis is only honest because every row is the same kind of number:
+ * the share of a fixed test set the model answered correctly. Rows are still
+ * separate tests of separate difficulty, which is why each carries its
+ * benchmark's name and nothing invites reading across them.
  */
 const AXIS = 100;
 const pct = (v: number) => `${Math.max(0, Math.min(100, (v / AXIS) * 100))}%`;
@@ -73,6 +78,7 @@ const missingNote = (() => {
               <div class="cap__head">
                 <h3 class="cap__label">{row.label}</h3>
                 <p class="cap__blurb">{row.blurb}</p>
+                <span class="cap__source mono">{row.source}</span>
               </div>
 
               <div class="cap__bars">
@@ -88,7 +94,7 @@ const missingNote = (() => {
                         style={`width:${pct(v)}`}
                       />
                     </span>
-                    <span class="cap__score mono">{v.toFixed(1)}</span>
+                    <span class="cap__score mono">{v.toFixed(1)}%</span>
                   </div>
                 ))}
               </div>
@@ -105,19 +111,22 @@ const missingNote = (() => {
 
       {value && (
         <p class="cap__value">
-          Per dollar of blended price, <strong>{value.winner.name}</strong> returns{' '}
-          <span class="mono">{value.points.toFixed(1)}</span> index points against{' '}
+          Averaged over the benchmarks both models sat, <strong>{value.winner.name}</strong>{' '}
+          returns <span class="mono">{value.points.toFixed(1)}</span> points of pass
+          rate per dollar of blended price against{' '}
           <span class="mono">{value.other.toFixed(1)}</span> — the ratio that decides
           whether the dearer model earns its rate.
         </p>
       )}
 
       <p class="cap__note">
-        Index scores run 0–100 and are measured by a third party, not
-        self-reported by the labs.
+        Each figure is a pass rate: the share of that test set the model answered
+        correctly, measured by a third party rather than self-reported by the lab.
+        Rows are different tests of different difficulty, so compare a model
+        against the other model, not one row against the next.
         {missingNote}{' '}
-        A benchmark is not your workload — it narrows the shortlist, it does not
-        pick for you.
+        And a benchmark is not your workload — it narrows the shortlist, it does
+        not pick for you.
       </p>
     </section>
   )
@@ -167,6 +176,15 @@ const missingNote = (() => {
     margin: 0;
     font-size: 0.82rem;
     color: var(--ink-faint);
+  }
+  /* Pushed to the end of the line: the reader needs the task first and the
+     test's name only when they want to check what produced the number. */
+  .cap__source {
+    margin-left: auto;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    white-space: nowrap;
   }
 
   /* name · track · score, so both rows share one grid and the bars line up

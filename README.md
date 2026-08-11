@@ -101,6 +101,26 @@ Dacă un model n-are măsurătoare, perechea rămâne o comparație de preț —
 `readCapability` întoarce `null` și secțiunea dispare. Jumătate de dovadă e mai
 rea decât nicio dovadă.
 
+**Rate de trecere, nu indici compoziți.** `artificial_analysis_*_index` păreau
+alegerea evidentă și sunt greșite aici: cei trei rulează pe scale vizibil
+diferite (mediane 15.4 / 37.6 / 53.3, maxime 63.1 / 78.3 / 99.0), deci desenate
+pe o axă comună sugerau o comparație inexistentă — un model cu 24 la
+„intelligence" și 93 la „math" nu e mai bun la matematică, e măsurat cu două
+rigle. Se folosesc `ifbench`, `livecodebench`, `tau2` și `gpqa`, publicate ca
+fracții 0–1: procentul dintr-un set fix de teste. Aia e o unitate comună, adică
+exact ce cere o axă comună.
+
+Rămân teste diferite, de dificultăți diferite, deci fiecare rând își poartă
+numele benchmark-ului și nota spune explicit să compari model cu model, nu rând
+cu rând. Din același motiv, „pe ce lentilă diferă cel mai mult" se decide în
+deviații standard, nu în puncte brute: σ e 17.1 pe IFBench și 31.6 pe τ²-bench,
+deci 10 puncte nu înseamnă același lucru. `spread` se calculează la sync peste
+toate cele ~600 de modele din API.
+
+Când o pereche împarte un singur benchmark, verdictul o spune („the only test
+both have sat"). Aproape jumătate din pagini sunt în cazul ăsta, iar „nu-l bate
+la nimic" pe baza unui singur test ar fi o afirmație mai tare decât dovada.
+
 **Paginile de compare sunt limitate deliberat.** Produsul cartezian pe tot
 catalogul ar fi ~30.000 de pagini aproape identice. `notableModels(3)` taie la
 modele curente cu context ≥100K, maxim 3 per furnizor → 561 perechi.
