@@ -88,10 +88,32 @@ for (let i = 0; i < urlList.length; i += CHUNK) {
     console.log(`✓ ${batch.length} URLs submitted — HTTP ${res.status}${
       res.status === 202 ? ' (key validation pending)' : ''
     }`);
-  } else {
-    console.error(`✗ HTTP ${res.status} ${body.slice(0, 200)}`);
-    if (res.status === 403)
-      console.error('  403 means the key file was not reachable at keyLocation.');
-    process.exit(1);
+    continue;
   }
+
+  /**
+   * Report the endpoint's own errorCode rather than guessing from the status.
+   * A 403 is `KeyNotFound` when the file is genuinely unreachable, but also
+   * `SiteVerificationNotCompleted` while the key is merely still being
+   * validated — the same status, opposite meanings, and only one of them is
+   * worth debugging.
+   */
+  let code = '';
+  try {
+    code = JSON.parse(body).errorCode ?? '';
+  } catch {
+    /* not JSON; the raw body below is all there is */
+  }
+
+  if (code === 'SiteVerificationNotCompleted') {
+    console.log(`⋯ Key accepted but not yet validated by the endpoint.`);
+    console.log(`  Nothing is wrong: /${INDEXNOW_KEY}.txt is being fetched.`);
+    console.log('  Re-run `npm run indexnow` in a few minutes.');
+    process.exit(75); // EX_TEMPFAIL — retryable, not a misconfiguration
+  }
+
+  console.error(`✗ HTTP ${res.status}${code ? ` ${code}` : ''} ${body.slice(0, 200)}`);
+  if (code === 'KeyNotFound')
+    console.error(`  The key file was not reachable at ${new URL(`/${INDEXNOW_KEY}.txt`, SITE).href}`);
+  process.exit(1);
 }
