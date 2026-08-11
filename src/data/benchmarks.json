@@ -175,6 +175,17 @@
       "outputTokensPerSecond": 118.6,
       "ttftSeconds": 0.9
     },
+    "command-r": {
+      "aaSlug": "command-r-03-2024",
+      "via": "alias",
+      "ifbench": null,
+      "gpqa": 28.4,
+      "livecodebench": 4.8,
+      "tau2": null,
+      "intelligenceIndex": 1.7,
+      "outputTokensPerSecond": 0,
+      "ttftSeconds": 0
+    },
     "gpt-4o-mini": {
       "aaSlug": "gpt-4o-mini",
       "via": "auto",
@@ -215,6 +226,17 @@
       "gpqa": 30.2,
       "livecodebench": 6.2,
       "tau2": null,
+      "intelligenceIndex": 2.3,
+      "outputTokensPerSecond": 0,
+      "ttftSeconds": 0
+    },
+    "jamba-mini-1-7": {
+      "aaSlug": "jamba-1-7-mini",
+      "via": "alias",
+      "ifbench": 31.4,
+      "gpqa": 32.2,
+      "livecodebench": 6.1,
+      "tau2": 12.6,
       "intelligenceIndex": 2.3,
       "outputTokensPerSecond": 0,
       "ttftSeconds": 0
@@ -857,6 +879,28 @@
       "outputTokensPerSecond": 0,
       "ttftSeconds": 0
     },
+    "jamba-large-1-6": {
+      "aaSlug": "jamba-1-6-large",
+      "via": "alias",
+      "ifbench": null,
+      "gpqa": 38.7,
+      "livecodebench": 17.2,
+      "tau2": null,
+      "intelligenceIndex": 4.7,
+      "outputTokensPerSecond": 0,
+      "ttftSeconds": 0
+    },
+    "jamba-large-1-7": {
+      "aaSlug": "jamba-1-7-large",
+      "via": "alias",
+      "ifbench": 35.2,
+      "gpqa": 39,
+      "livecodebench": 18.1,
+      "tau2": 13.5,
+      "intelligenceIndex": 5,
+      "outputTokensPerSecond": 58.8,
+      "ttftSeconds": 0.9
+    },
     "magistral-medium-2509": {
       "aaSlug": "magistral-medium-2509",
       "via": "auto",
@@ -901,6 +945,17 @@
       "outputTokensPerSecond": 127.8,
       "ttftSeconds": 5.7
     },
+    "grok-4-20-0309-reasoning": {
+      "aaSlug": "grok-4-20-0309",
+      "via": "alias",
+      "ifbench": 82.9,
+      "gpqa": 88.5,
+      "livecodebench": null,
+      "tau2": 96.5,
+      "intelligenceIndex": 37.4,
+      "outputTokensPerSecond": 0,
+      "ttftSeconds": 0
+    },
     "grok-4-5": {
       "aaSlug": "grok-4-5",
       "via": "auto",
@@ -942,6 +997,17 @@
       "livecodebench": 89.4,
       "tau2": 95.9,
       "intelligenceIndex": 34.5,
+      "outputTokensPerSecond": 0,
+      "ttftSeconds": 0
+    },
+    "command-r-plus": {
+      "aaSlug": "command-r-plus-04-2024",
+      "via": "alias",
+      "ifbench": null,
+      "gpqa": 32.3,
+      "livecodebench": 12.2,
+      "tau2": null,
+      "intelligenceIndex": 2.6,
       "outputTokensPerSecond": 0,
       "ttftSeconds": 0
     },
