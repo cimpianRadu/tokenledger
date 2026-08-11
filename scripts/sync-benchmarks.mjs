@@ -72,6 +72,37 @@ function score(v) {
   return n === null ? null : Number(n.toFixed(1));
 }
 
+/**
+ * The benchmarks we render, and why these rather than the headline indices.
+ *
+ * `artificial_analysis_*_index` looked like the obvious choice and is wrong for
+ * this job: the three run on visibly different scales (medians 15.4 / 37.6 /
+ * 53.3, maxima 63.1 / 78.3 / 99.0), so drawing them on one axis invites a
+ * comparison that is not there — a model reading 24 on intelligence and 93 on
+ * math is not better at maths, it is being scored by two different rulers.
+ *
+ * These four are published as pass rates in 0–1: the share of a fixed test set
+ * the model got right. That shares a unit, which is what a common axis needs.
+ * Each is still its own test of its own difficulty, so the label always names
+ * the benchmark and the reader is never asked to compare across rows.
+ */
+const BENCHMARKS = {
+  ifbench: 'ifbench',
+  gpqa: 'gpqa',
+  livecodebench: 'livecodebench',
+  tau2: 'tau2',
+};
+
+/** 0–1 pass rate to a 0–100 percentage. */
+function rate(v) {
+  const n = num(v);
+  if (n === null) return null;
+  // A value already above 1 would mean the API changed units under us; better
+  // to drop it than to publish a number that is silently 100× wrong.
+  if (n > 1) return null;
+  return Number((n * 100).toFixed(1));
+}
+
 async function loadRaw(key) {
   try {
     const res = await fetch(ENDPOINT, {
@@ -90,6 +121,27 @@ async function loadRaw(key) {
     throw err;
   }
 }
+
+/**
+ * Read `.env` if it is there, without a dependency and without clobbering a
+ * variable already exported in the shell.
+ *
+ * Node's own `--env-file` is not an option: `--env-file-if-exists` only landed
+ * in 20.12, and the plain flag aborts when the file is missing — which is the
+ * normal case here and has to stay a clean skip, not a crash.
+ */
+function loadDotEnv() {
+  const path = resolve(ROOT, '.env');
+  if (!existsSync(path)) return;
+  for (const line of readFileSync(path, 'utf8').split('\n')) {
+    const m = /^\s*([A-Z0-9_]+)\s*=\s*(.*)$/i.exec(line);
+    if (!m || line.trimStart().startsWith('#')) continue;
+    const value = m[2].trim().replace(/^(['"])(.*)\1$/, '$2');
+    if (value && !process.env[m[1]]) process.env[m[1]] = value;
+  }
+}
+
+loadDotEnv();
 
 const key = process.env.ARTIFICIALANALYSIS_API_KEY;
 if (!key) {
@@ -137,12 +189,14 @@ for (const [slug] of wanted) {
   const entry = {
     aaSlug: row.slug ?? row.id ?? null,
     via: alias ? 'alias' : 'auto',
-    intelligence: score(ev.artificial_analysis_intelligence_index),
-    coding: score(ev.artificial_analysis_coding_index),
-    math: score(ev.artificial_analysis_math_index),
-    mmluPro: score(ev.mmlu_pro),
-    gpqa: score(ev.gpqa),
-    livecodebench: score(ev.livecodebench),
+    ...Object.fromEntries(
+      Object.entries(BENCHMARKS).map(([key, field]) => [key, rate(ev[field])])
+    ),
+    /**
+     * Carried for reference only, never rendered: see the note on BENCHMARKS
+     * for why these cannot share an axis with each other or with the rest.
+     */
+    intelligenceIndex: score(ev.artificial_analysis_intelligence_index),
     /**
      * Throughput and latency are per-endpoint, not per-model: the same weights
      * on Groq and on a first-party API are different numbers. These are the
@@ -154,9 +208,7 @@ for (const [slug] of wanted) {
   };
 
   // A row that matched but carries no usable score is noise, not coverage.
-  const hasAny = ['intelligence', 'coding', 'math', 'mmluPro', 'gpqa', 'livecodebench'].some(
-    (k) => entry[k] !== null
-  );
+  const hasAny = Object.keys(BENCHMARKS).some((k) => entry[k] !== null);
   if (!hasAny) {
     missed.push(`${slug} (matched ${entry.aaSlug}, no scores)`);
     continue;
@@ -166,12 +218,34 @@ for (const [slug] of wanted) {
   matched.push([slug, entry.aaSlug, entry.via]);
 }
 
+/**
+ * Spread of each benchmark across every model the API scores, in percentage
+ * points.
+ *
+ * Needed because "which lens do these two differ on most" cannot be answered
+ * by comparing raw gaps: the tests do not spread their fields equally, so five
+ * points on a bunched-up benchmark is a wider gap than five on one that fans
+ * out. Measured over all upstream rows rather than our 26, since that is the
+ * range the test itself discriminates over.
+ */
+const spread = {};
+for (const [key, field] of Object.entries(BENCHMARKS)) {
+  const vals = rows.map((r) => rate(r.evaluations?.[field])).filter((v) => v !== null);
+  if (vals.length < 2) continue;
+  const mean = vals.reduce((s, v) => s + v, 0) / vals.length;
+  const variance = vals.reduce((s, v) => s + (v - mean) ** 2, 0) / vals.length;
+  spread[key] = Number(Math.sqrt(variance).toFixed(2));
+}
+
 const payload = {
   updatedAt: new Date().toISOString().slice(0, 10),
   source: ATTRIBUTION_URL,
   // Rendered in the footer. The free API's terms require visible attribution.
   attribution: 'Capability scores measured independently by Artificial Analysis.',
-  scale: '0–100 index; higher is better. Speed fields are medians across providers.',
+  scale:
+    'Benchmark fields are pass rates in percent (share of the test set answered ' +
+    'correctly). Speed fields are medians across providers.',
+  spread,
   models,
 };
 

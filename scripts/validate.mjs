@@ -178,7 +178,9 @@ if (existsSync(benchPath)) {
   const bench = JSON.parse(readFileSync(benchPath, 'utf8'));
   const entries = Object.entries(bench.models ?? {});
   const bySlug = new Map(models.map((m) => [m.slug, m]));
-  const INDEX_FIELDS = ['intelligence', 'coding', 'math', 'mmluPro', 'gpqa', 'livecodebench'];
+  // The rendered pass rates. `intelligenceIndex` is carried but never drawn,
+  // and it runs on its own scale, so it is not checked against 0–100 here.
+  const RATE_FIELDS = ['ifbench', 'gpqa', 'livecodebench', 'tau2'];
 
   if (entries.length === 0) {
     note('No benchmark data — capability sections will not render. Run npm run sync:bench.');
@@ -199,13 +201,13 @@ if (existsSync(benchPath)) {
         fail(`benchmarks.json has "${slug}", which is not a model — mapping is stale.`);
         continue;
       }
-      for (const f of INDEX_FIELDS) {
+      for (const f of RATE_FIELDS) {
         const v = entry[f];
         if (v === null || v === undefined) continue;
         if (typeof v !== 'number' || v < 0 || v > 100)
-          fail(`${slug}: ${f} is ${v}, outside the 0–100 index range.`);
+          fail(`${slug}: ${f} is ${v}, outside the 0–100% pass-rate range.`);
       }
-      if (INDEX_FIELDS.every((f) => entry[f] === null || entry[f] === undefined))
+      if (RATE_FIELDS.every((f) => entry[f] === null || entry[f] === undefined))
         fail(`${slug}: benchmark entry carries no scores — it should have been skipped.`);
     }
 

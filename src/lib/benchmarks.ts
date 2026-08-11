@@ -12,12 +12,13 @@ import type { Model } from './models';
 export interface Benchmark {
   aaSlug: string | null;
   via: 'auto' | 'alias';
-  intelligence: number | null;
-  coding: number | null;
-  math: number | null;
-  mmluPro: number | null;
+  /** Pass rates in percent — share of each test set answered correctly. */
+  ifbench: number | null;
   gpqa: number | null;
   livecodebench: number | null;
+  tau2: number | null;
+  /** Carried by the sync for reference; deliberately never rendered. */
+  intelligenceIndex: number | null;
   outputTokensPerSecond: number | null;
   ttftSeconds: number | null;
 }
@@ -45,22 +46,28 @@ export function benchmarkFor(slug: string): Benchmark | undefined {
  */
 export const LENSES = [
   {
-    key: 'intelligence' as const,
-    label: 'General',
-    blurb: 'summarising, extraction, classification, chat',
-    source: 'Artificial Analysis Intelligence Index',
+    key: 'ifbench' as const,
+    label: 'Following instructions',
+    blurb: 'extraction, classification, sticking to a format',
+    source: 'IFBench',
   },
   {
-    key: 'coding' as const,
+    key: 'livecodebench' as const,
     label: 'Coding',
-    blurb: 'writing and fixing code, agentic tool use',
-    source: 'Artificial Analysis Coding Index',
+    blurb: 'writing and fixing code',
+    source: 'LiveCodeBench',
   },
   {
-    key: 'math' as const,
-    label: 'Reasoning',
-    blurb: 'multi-step logic, maths, analysis',
-    source: 'Artificial Analysis Math Index',
+    key: 'tau2' as const,
+    label: 'Tool use',
+    blurb: 'multi-step agent work against real tools',
+    source: 'τ²-bench',
+  },
+  {
+    key: 'gpqa' as const,
+    label: 'Hard reasoning',
+    blurb: 'graduate-level science and multi-step analysis',
+    source: 'GPQA Diamond',
   },
 ];
 
@@ -77,19 +84,30 @@ export function blendedPrice(m: Model): number {
 }
 
 /**
- * How far apart two scores have to be before we call it a real difference.
+ * How far apart two scores have to be before we call it a real difference —
+ * expressed in standard deviations of the benchmark, not in raw points.
  *
- * Judgment calls, not measurements. `NOISE` is the band inside which we tell
- * someone to just take the cheaper model; `TIER` is where we stop calling them
- * alternatives at all. Both are named here rather than inlined because the
- * honest thing is to re-tune them against the real spread once the dataset
- * lands, and that should be a one-line change.
+ * Raw points cannot work across benchmarks. Each test spreads its field
+ * differently, so five points apart on a bunched-up test is a wider gap than
+ * five on one that fans out, and picking "the lens they differ on most" by raw
+ * gap would just pick whichever test happens to spread widest. `spread` is
+ * measured at sync time over every model upstream scores.
  */
-const NOISE = 3;
-const TIER = 10;
+const NOISE_SD = 0.25;
+const TIER_SD = 0.8;
 
 /** Below this the price difference is not worth mentioning as a reason. */
 const PRICE_TIE = 1.15;
+
+const spread = (data.spread ?? {}) as Partial<Record<LensKey, number>>;
+
+/** A gap in standard deviations of its own benchmark. */
+function inSd(key: LensKey, points: number): number {
+  const sd = spread[key];
+  // No measured spread means no basis for calling the gap big or small; treat
+  // it as one SD per 10 points, which is roughly what these tests run at.
+  return points / (sd && sd > 0 ? sd : 10);
+}
 
 export interface LensRow {
   key: LensKey;
@@ -157,8 +175,13 @@ export function readCapability(a: Model, b: Model): CapabilityRead | null {
   const [cheaper, dearer] = pa <= pb ? [a, b] : [b, a];
   const priceRatio = Math.max(pa, pb) / Math.min(pa, pb);
 
-  const ia = pick(ba, 'intelligence');
-  const ib = pick(bb, 'intelligence');
+  /**
+   * Value is averaged over the benchmarks *both* models sat, so the two
+   * figures are built from the same tests. Averaging over whatever each model
+   * happens to have would reward the one that skipped the hard ones.
+   */
+  const meanA = comparable.reduce((s, r) => s + (r.a as number), 0) / comparable.length;
+  const meanB = comparable.reduce((s, r) => s + (r.b as number), 0) / comparable.length;
 
   return {
     rows,
@@ -166,8 +189,8 @@ export function readCapability(a: Model, b: Model): CapabilityRead | null {
     cheaper,
     dearer,
     priceRatio,
-    valueA: ia === null || pa === 0 ? null : ia / pa,
-    valueB: ib === null || pb === 0 ? null : ib / pb,
+    valueA: pa === 0 ? null : meanA / pa,
+    valueB: pb === 0 ? null : meanB / pb,
     verdict: buildVerdict({ comparable, cheaper, dearer, priceRatio, a, b }),
   };
 }
@@ -188,41 +211,58 @@ function buildVerdict({
 }): string | null {
   // `delta` is signed b − a; flip it so positive always means "dearer leads".
   const flip = dearer.slug === a.slug ? -1 : 1;
-  const gaps = comparable.map((r) => ({ row: r, gap: (r.delta as number) * flip }));
+  const gaps = comparable.map((r) => {
+    const points = (r.delta as number) * flip;
+    return { row: r, points, sd: inSd(r.key, points) };
+  });
 
   const ratio = `${priceRatio.toFixed(1)}×`;
-  const lead = gaps.reduce((best, g) => (g.gap > best.gap ? g : best));
-  const behind = gaps.filter((g) => g.gap < -NOISE);
+  // Ranked in standard deviations, then reported in points: SD decides which
+  // lens is the real story, points are what the reader can check on the chart.
+  const lead = gaps.reduce((best, g) => (g.sd > best.sd ? g : best));
+  const behind = gaps.filter((g) => g.sd < -NOISE_SD);
+  const on = (g: typeof lead) => `${g.row.label.toLowerCase()} (${g.row.source})`;
+  const by = (g: typeof lead) => `${g.points.toFixed(1)} points on ${on(g)}`;
+
+  /**
+   * Most pairs overlap on a single benchmark, and "beats it on nothing" off one
+   * test is a sweeping claim on thin evidence. Where the phrasing would
+   * generalise, name the one test instead and let the reader weigh it.
+   */
+  const thin = gaps.length === 1;
+  const across = thin ? `on ${on(gaps[0])}` : 'on any benchmark they share';
+  const everywhere = thin ? `on ${on(gaps[0])}` : 'on every benchmark they share';
 
   // Cheaper *and* better is the one case worth stating outright.
-  if (lead.gap <= NOISE && behind.length > 0) {
-    // Naming all three lenses is longer and says less than "every lens".
-    const on =
+  if (lead.sd <= NOISE_SD && behind.length > 0) {
+    const where =
       behind.length === gaps.length && gaps.length > 1
-        ? 'every lens'
-        : list(behind.map((g) => g.row.label.toLowerCase()));
+        ? 'every benchmark they share'
+        : list(behind.map((g) => on(g)));
     return priceRatio >= PRICE_TIE
-      ? `${cheaper.name} is ${ratio} cheaper than ${dearer.name} and scores higher on ${on} — there is no case for paying more here.`
-      : `${cheaper.name} and ${dearer.name} cost about the same, but ${cheaper.name} scores higher on ${on}.`;
+      ? `${cheaper.name} is ${ratio} cheaper than ${dearer.name} and scores higher on ${where} — there is no case for paying more here.`
+      : `${cheaper.name} and ${dearer.name} cost about the same, but ${cheaper.name} scores higher on ${where}.`;
   }
 
   if (priceRatio < PRICE_TIE) {
-    return lead.gap > NOISE
-      ? `Both are priced within ${Math.round((PRICE_TIE - 1) * 100)}% of each other, so capability decides it: ${dearer.name} leads by ${lead.gap.toFixed(1)} points on ${lead.row.label.toLowerCase()}.`
-      : `${a.name} and ${dearer.slug === a.slug ? cheaper.name : dearer.name} are close on both price and measured capability — either will do.`;
+    return lead.sd > NOISE_SD
+      ? `Both are priced within ${Math.round((PRICE_TIE - 1) * 100)}% of each other, so capability decides it: ${dearer.name} leads by ${by(lead)}.`
+      : `${cheaper.name} and ${dearer.name} are close on price and level ${everywhere} — either will do.`;
   }
 
-  if (lead.gap <= NOISE) {
-    return `${dearer.name} costs ${ratio} more than ${cheaper.name} and measures within ${NOISE} points of it across every lens — for these tasks the extra spend buys nothing measurable.`;
+  if (lead.sd <= NOISE_SD) {
+    return `${dearer.name} costs ${ratio} more than ${cheaper.name} without measurably beating it ${across}${
+      thin ? ', the only test both have sat' : ''
+    } — on that evidence the extra spend buys nothing you can point at.`;
   }
 
-  if (lead.gap >= TIER) {
-    const weak = gaps.filter((g) => g.gap <= NOISE).map((g) => g.row.label.toLowerCase());
-    const tail = weak.length
-      ? ` They are level on ${list(weak)}, so the premium only pays off on ${lead.row.label.toLowerCase()} work.`
+  if (lead.sd >= TIER_SD) {
+    const level = gaps.filter((g) => g.sd <= NOISE_SD).map((g) => on(g));
+    const tail = level.length
+      ? ` They are level on ${list(level)}, so the premium only pays off on ${lead.row.label.toLowerCase()} work.`
       : '';
-    return `Not the same tier: ${dearer.name} leads ${cheaper.name} by ${lead.gap.toFixed(1)} points on ${lead.row.label.toLowerCase()}, for ${ratio} the price.${tail}`;
+    return `Not the same tier: ${dearer.name} leads ${cheaper.name} by ${by(lead)}, for ${ratio} the price.${tail}`;
   }
 
-  return `${dearer.name} is ${ratio} dearer for ${lead.gap.toFixed(1)} more points on ${lead.row.label.toLowerCase()} — worth it only if that is your bottleneck.`;
+  return `${dearer.name} is ${ratio} dearer for ${by(lead)} — worth it only if that is your bottleneck.`;
 }

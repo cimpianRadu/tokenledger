@@ -80,8 +80,8 @@ const year = new Date().getFullYear();
               Measured independently by{' '}
               <a href={benchmarkSource} rel="nofollow noopener">Artificial Analysis</a>
               {benchmarkUpdatedAt ? `, read ${benchmarkUpdatedAt}` : ''}, not
-              self-reported by the labs. They are a 0–100 index over public test
-              sets, so they rank models against each other on
+              self-reported by the labs. Each is a pass rate on a public test
+              set, so it ranks models against each other on
               <strong> those</strong> tasks — not on yours. Models with no
               published score carry no score here.
             </dd>
