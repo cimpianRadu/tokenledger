@@ -18,3 +18,17 @@ export const EMAIL = 'hello@pricepertoken.ai';
  * translated, so the Romanian form stays as it is on the registration.
  */
 export const OPERATOR = 'Radu Gheorghe Cimpian PFA';
+
+/**
+ * Which analytics the site ships, or `null` for none.
+ *
+ * `Base.astro` emits the script from this and `privacy.astro` describes it
+ * from the same value, so the policy page cannot claim analytics the build
+ * does not ship — or stay silent about analytics it does.
+ *
+ * Vercel rather than Google Analytics on purpose: GA4 sets `_ga` cookies,
+ * which would both falsify this site's "no cookies" claim and require a
+ * consent banner in the EU. Vercel's is cookieless and served from this
+ * origin, so neither applies.
+ */
+export const ANALYTICS = 'vercel';

@@ -1,19 +1,16 @@
 ---
 import Base from '../layouts/Base.astro';
 
-import { OPERATOR } from '../../site.config.mjs';
+import { OPERATOR, ANALYTICS } from '../../site.config.mjs';
 
 const UPDATED = '2026-08-10';
 
 /**
- * Read from the same variable that decides whether `Base.astro` emits the
+ * Read from the same constant that decides whether `Base.astro` emits the
  * script, so this page cannot claim analytics the build does not ship — or
  * stay silent about analytics it does.
  */
-const analytics = Boolean(import.meta.env.PUBLIC_UMAMI_WEBSITE_ID);
-const umamiHost = import.meta.env.PUBLIC_UMAMI_SRC
-  ? new URL(import.meta.env.PUBLIC_UMAMI_SRC).host
-  : 'Umami Cloud';
+const analytics = ANALYTICS === 'vercel';
 ---
 
 <Base
@@ -47,13 +44,14 @@ const umamiHost = import.meta.env.PUBLIC_UMAMI_SRC
     </p>
     {analytics && (
       <p>
-        Page views are counted with <a href="https://umami.is/">Umami</a>,
-        loaded from {umamiHost}. It is cookieless and records one row per view:
-        the page URL, the referring URL, and coarse browser, operating system,
-        device and country fields derived from the request. Your IP address is
-        used to derive those and is not stored. There is no identifier that
-        follows you between visits or to any other site, so the counts are of
-        views, not of people.
+        Page views are counted with Vercel Web Analytics, which is part of the
+        hosting rather than a separate company. It sets no cookies and reads no
+        local storage. Each view records the page URL, the referring URL, and
+        coarse browser, operating system, device and country fields derived
+        from the request; the identifier it uses to tell one visit from another
+        is a hash that is discarded daily and never crosses to another site.
+        Google Analytics was considered and rejected for this page: it would
+        set cookies, which would make the paragraph above false.
       </p>
     )}
     <p>
