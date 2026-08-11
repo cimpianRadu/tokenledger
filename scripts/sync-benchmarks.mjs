@@ -123,6 +123,19 @@ const BENCHMARKS = {
   tau2: 'tau2',
 };
 
+/**
+ * Throughput and latency, where upstream writes 0 for "not measured".
+ *
+ * 93 of 116 rows come back as a flat zero, so keeping the literal value would
+ * store "0 tokens/second" for most of the catalogue. Nothing renders these
+ * today, which is exactly why it is worth fixing now — the first thing that
+ * reads them would inherit a silent falsehood rather than an honest gap.
+ */
+function speed(v) {
+  const n = num(v);
+  return n === null || n === 0 ? null : Number(n.toFixed(1));
+}
+
 /** 0–1 pass rate to a 0–100 percentage. */
 function rate(v) {
   const n = num(v);
@@ -233,8 +246,8 @@ for (const [slug] of wanted) {
      * medians across the providers Artificial Analysis tests, so they are
      * carried for reference but never used in a verdict.
      */
-    outputTokensPerSecond: score(row.median_output_tokens_per_second),
-    ttftSeconds: score(row.median_time_to_first_token_seconds),
+    outputTokensPerSecond: speed(row.median_output_tokens_per_second),
+    ttftSeconds: speed(row.median_time_to_first_token_seconds),
   };
 
   // A row that matched but carries no usable score is noise, not coverage.
