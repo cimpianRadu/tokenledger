@@ -161,6 +161,58 @@ const pairs = (notable.length * (notable.length - 1)) / 2;
 if (pairs > 1500)
   warn(`${pairs} comparison pages. Above ~1500 this reads as thin content; lower perProvider.`);
 
+/* ----------------------------------------------------------- benchmarks --- */
+
+/**
+ * Capability data is optional by design: no API key, no section, still a valid
+ * build. So nothing here fails on absence — it fails on data that is present
+ * and wrong, which is the only state that can put a false number on a page.
+ *
+ * Note the staleness rule is deliberately softer than pricing's 30-day hard
+ * fail. A score does not rot the way a price does; what ages is coverage of
+ * models released since the last read, and that is a warning, not a broken
+ * page.
+ */
+const benchPath = resolve(ROOT, 'src/data/benchmarks.json');
+if (existsSync(benchPath)) {
+  const bench = JSON.parse(readFileSync(benchPath, 'utf8'));
+  const entries = Object.entries(bench.models ?? {});
+  const bySlug = new Map(models.map((m) => [m.slug, m]));
+  const INDEX_FIELDS = ['intelligence', 'coding', 'math', 'mmluPro', 'gpqa', 'livecodebench'];
+
+  if (entries.length === 0) {
+    note('No benchmark data — capability sections will not render. Run npm run sync:bench.');
+  } else {
+    if (!bench.attribution || !bench.source?.includes('artificialanalysis.ai'))
+      fail('benchmarks.json is missing its source or attribution — the free API requires it.');
+
+    const bAge = Math.floor(
+      (Date.now() - Date.parse(bench.updatedAt)) / 86_400_000
+    );
+    if (Number.isNaN(bAge)) fail(`benchmarks updatedAt is not a date: ${bench.updatedAt}`);
+    else if (bAge > 90) warn(`Benchmark data is ${bAge} days old — new models are likely unscored.`);
+
+    for (const [slug, entry] of entries) {
+      // A slug that no longer exists upstream means the mapping drifted; the
+      // entry is silently unreachable rather than visibly broken.
+      if (!bySlug.has(slug)) {
+        fail(`benchmarks.json has "${slug}", which is not a model — mapping is stale.`);
+        continue;
+      }
+      for (const f of INDEX_FIELDS) {
+        const v = entry[f];
+        if (v === null || v === undefined) continue;
+        if (typeof v !== 'number' || v < 0 || v > 100)
+          fail(`${slug}: ${f} is ${v}, outside the 0–100 index range.`);
+      }
+      if (INDEX_FIELDS.every((f) => entry[f] === null || entry[f] === undefined))
+        fail(`${slug}: benchmark entry carries no scores — it should have been skipped.`);
+    }
+
+    note(`${entries.length} models carry capability scores.`);
+  }
+}
+
 /* --------------------------------------------------------------- output --- */
 
 /**
@@ -242,6 +294,18 @@ if (checkDist) {
     );
     const titles = new Map();
 
+    /**
+     * Capability coverage, counted off the rendered output rather than
+     * re-derived from the data.
+     *
+     * Deriving it here would mean a third copy of the `notableModels` rules —
+     * this file already keeps an approximate one, and it has already drifted
+     * (no VARIANT filter), so a count built on it would be quietly wrong. The
+     * built pages are the ground truth for what a visitor actually sees.
+     */
+    let comparePages = 0;
+    let withCapability = 0;
+
     for (const page of pages) {
       const html = readFileSync(page, 'utf8');
       const route = '/' + relative(DIST, page).replace(/index\.html$/, '').replace(/\\/g, '/');
@@ -254,6 +318,11 @@ if (checkDist) {
         const seen = titles.get(title);
         if (seen) fail(`Duplicate title on ${seen} and ${route}: "${title}"`);
         titles.set(title, route);
+      }
+
+      if (route.startsWith('/compare/') && route !== '/compare/') {
+        comparePages++;
+        if (html.includes('Capability for the money')) withCapability++;
       }
 
       if (!/<meta name="description"/.test(html)) fail(`${route}: no meta description`);
@@ -314,6 +383,20 @@ if (checkDist) {
 
     if (!existsSync(join(DIST, 'sitemap-index.xml')))
       warn('No sitemap-index.xml in dist.');
+
+    if (comparePages > 0) {
+      const pct = Math.round((withCapability / comparePages) * 100);
+      note(
+        `${withCapability}/${comparePages} comparison pages (${pct}%) show a capability section.`
+      );
+      // A pair needs *both* models measured, so page coverage is roughly the
+      // square of model coverage — 60% of models is only ~36% of pages.
+      if (withCapability > 0 && pct < 40)
+        warn(
+          `Only ${pct}% of comparison pages show capability. ` +
+            'Extend ALIASES in sync-benchmarks.mjs using its unmatched list.'
+        );
+    }
 
     console.log(`Checked ${pages.length} built pages.`);
   }

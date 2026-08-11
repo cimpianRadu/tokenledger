@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "sync": "node scripts/sync-pricing.mjs",
+    "sync:bench": "node scripts/sync-benchmarks.mjs",
     "brand": "node scripts/make-brand.mjs",
     "indexnow": "node scripts/indexnow.mjs",
     "check": "node scripts/validate.mjs",

@@ -1,5 +1,6 @@
 ---
 import { orderedProviders, models, updatedAt, sourceUrl } from '../lib/models';
+import { hasBenchmarks, benchmarkSource, benchmarkUpdatedAt } from '../lib/benchmarks';
 
 const exactCount = models.filter((m) => m.counting === 'exact').length;
 const tierCount = models.filter((m) => m.tier).length;
@@ -69,6 +70,23 @@ const year = new Date().getFullYear();
             that applies it is priced automatically and flagged.
           </dd>
         </div>
+        {/* Attribution is a condition of the free API, so it lives in the
+            notes rather than a buried link — and it belongs here anyway: the
+            provenance of a score is exactly what this section is for. */}
+        {hasBenchmarks && (
+          <div>
+            <dt>Capability scores</dt>
+            <dd>
+              Measured independently by{' '}
+              <a href={benchmarkSource} rel="nofollow noopener">Artificial Analysis</a>
+              {benchmarkUpdatedAt ? `, read ${benchmarkUpdatedAt}` : ''}, not
+              self-reported by the labs. They are a 0–100 index over public test
+              sets, so they rank models against each other on
+              <strong> those</strong> tasks — not on yours. Models with no
+              published score carry no score here.
+            </dd>
+          </div>
+        )}
         <div>
           <dt>Cost estimates</dt>
           <dd>

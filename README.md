@@ -13,6 +13,16 @@ npm run dev
 `npm run sync` scrie `src/data/models.json`. Rulează-l înainte de fiecare build —
 e singura sursă de adevăr pentru prețuri, și e cronjob-abil.
 
+```bash
+export ARTIFICIALANALYSIS_API_KEY=...   # cont gratuit, 1.000 requests/zi
+npm run sync:bench
+```
+
+`npm run sync:bench` scrie `src/data/benchmarks.json` — scoruri de capabilitate
+măsurate independent. E **opțional**: fără cheie scriptul iese curat, fișierul
+rămâne gol și secțiunile de capabilitate pur și simplu nu se randează. Build-ul
+trece fie așa, fie așa.
+
 ## Ce generează
 
 | rută | pagini | de unde vine volumul |
@@ -40,6 +50,12 @@ npm run build          # build + validare pe output (rulează automat)
 - snapshot datat nepliat peste aliasul lui
 - linkuri interne rupte, titluri duplicate, `<title>` / canonical / description lipsă
 - titluri care nu mai conțin keyword-ul pentru care a fost făcută pagina
+- scor de benchmark în afara intervalului 0–100, sau atașat unui slug care nu
+  mai există (mapping-ul spre Artificial Analysis a driftat)
+
+Datele de benchmark au regulă de vechime **mai blândă** decât prețurile:
+avertisment la 90 de zile, nu `FAIL` la 30. Un scor nu se strică — un preț da.
+Ce îmbătrânește e acoperirea modelelor noi, și aia e o notă, nu o pagină greșită.
 
 Ultima e cea mai utilă pe termen lung: dacă cineva rescrie titlul paginii
 Anthropic și scoate „claude api pricing", build-ul pică. Ținta de 6.600
@@ -72,6 +88,18 @@ pleacă de pe termenul pentru care a fost făcut.
 tarifele lor vechi — Opus 4.1 e $15/$75 în timp ce Opus 5 e $5/$25 — așa că
 „cel mai scump" selecta fix modelele pe care nu le mai compară nimeni.
 Fereastra de context e cel mai bun indicator de recență din dataset.
+
+**Benchmark-urile servesc concluzia de preț, niciodată invers.** Scorurile sunt
+commodity — orice leaderboard le republică. Prețul proaspăt nu e. Deci nu
+există rută `/benchmarks/` și nu există leaderboard propriu: capabilitatea apare
+doar lipită de preț, în verdictul „merită să plătești în plus?" de pe paginile
+de compare. Un leaderboard aici ar concura cu site-uri care au 381 de modele
+față de 34 ale noastre, pe terenul lor.
+
+Corolarul de onestitate: nu se scrie niciun scor pe care nu l-a măsurat cineva.
+Dacă un model n-are măsurătoare, perechea rămâne o comparație de preț —
+`readCapability` întoarce `null` și secțiunea dispare. Jumătate de dovadă e mai
+rea decât nicio dovadă.
 
 **Paginile de compare sunt limitate deliberat.** Produsul cartezian pe tot
 catalogul ar fi ~30.000 de pagini aproape identice. `notableModels(3)` taie la
