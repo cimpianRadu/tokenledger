@@ -57,20 +57,26 @@ const ALIASES = {
 
   // Upstream marks the *non*-reasoning build and leaves the reasoning one bare.
   'grok-4-20-0309-reasoning': 'grok-4-20-0309',
-};
 
-/**
- * Deliberately not aliased, though a plausible-looking candidate exists:
- *
- *   gpt-5-6              upstream has only gpt-5-6-luna / -sol / -terra, and
- *                        nothing says which one the bare id resolves to.
- *   ministral-8b-latest  upstream's nearest is ministral-3-8b, a later
- *                        generation. `-latest` may or may not point at it.
- *
- * Both would be guesses, and a wrong guess here staples one model's score to
- * another model's price — the single worst failure this feature can have. They
- * stay unmatched until someone confirms the mapping.
- */
+  /**
+   * Resolved by price fingerprint, not by name.
+   *
+   * Neither of these could be read off the slug: upstream carries no bare
+   * `gpt-5-6`, only -luna / -sol / -terra, and `ministral-8b-latest` says
+   * nothing about which generation it currently points at. What settles both
+   * is that two independent sources agree on a tier structure with distinct
+   * rates, and our row sits exactly on one of them.
+   *
+   *   gpt-5-6      $5/$30   luna $0.20/$1.20 · terra $2/$12 · sol $5/$30
+   *   ministral-8b $0.15    3b $0.10 · 8b $0.15 · 14b $0.20
+   *
+   * Same reasoning `sync-pricing.mjs` already applies when folding snapshots:
+   * a copy at a different price is a different offer. Three tiers, three
+   * rates, one match each — a coincidence would need the rates to collide.
+   */
+  'gpt-5-6': 'gpt-5-6-sol',
+  'ministral-8b-latest': 'ministral-3-8b',
+};
 
 /**
  * Strip everything that is packaging rather than identity, so `kimi-k2-5` and
