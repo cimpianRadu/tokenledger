@@ -197,8 +197,10 @@ const providers = Object.entries(PROVIDERS)
   }))
   .filter((p) => p.modelCount > 0);
 
+const today = new Date().toISOString().slice(0, 10);
+
 const payload = {
-  updatedAt: new Date().toISOString().slice(0, 10),
+  updatedAt: today,
   source: SOURCE,
   providers,
   models,
@@ -209,7 +211,58 @@ writeFileSync(
   JSON.stringify(payload, null, 2)
 );
 
+/**
+ * Price history, one row per calendar month.
+ *
+ * `models.json` is a snapshot and every sync overwrites it, so without this
+ * the record of what a model used to cost is gone the moment a provider cuts
+ * a rate. That series cannot be backfilled from anywhere — LiteLLM publishes
+ * current prices, not past ones — so it only exists if collection starts now.
+ *
+ * A re-run inside the same month replaces that month's row rather than adding
+ * one, and each snapshot serialises to a single line, so a month of history
+ * is a one-line diff instead of a few hundred.
+ */
+function recordHistory() {
+  const path = resolve(ROOT, 'src/data/history.json');
+  const history = existsSync(path)
+    ? JSON.parse(readFileSync(path, 'utf8'))
+    : {
+        unit: 'USD per million tokens',
+        fields: ['input', 'cachedInput', 'output'],
+        snapshots: [],
+      };
+
+  const prices = Object.fromEntries(
+    models.map((m) => [m.slug, [m.input, m.cachedInput, m.output]])
+  );
+  const month = today.slice(0, 7);
+  const row = { month, date: today, models: models.length, prices };
+
+  const at = history.snapshots.findIndex((s) => s.month === month);
+  if (at >= 0) history.snapshots[at] = row;
+  else history.snapshots.push(row);
+  history.snapshots.sort((a, b) => a.month.localeCompare(b.month));
+
+  const body = history.snapshots.map((s) => `  ${JSON.stringify(s)}`).join(',\n');
+  writeFileSync(
+    path,
+    `{\n  "unit": ${JSON.stringify(history.unit)},\n` +
+      `  "fields": ${JSON.stringify(history.fields)},\n` +
+      `  "snapshots": [\n${body}\n  ]\n}\n`
+  );
+  return history.snapshots;
+}
+
+const snapshots = recordHistory();
+
 console.log(
   `Wrote ${models.length} models across ${providers.length} providers.`
 );
 for (const p of providers) console.log(`  ${p.name.padEnd(16)} ${p.modelCount}`);
+
+const span =
+  snapshots.length > 1
+    ? `${snapshots[0].month} → ${snapshots[snapshots.length - 1].month}`
+    : snapshots[0].month;
+console.log(`History: ${snapshots.length} monthly snapshot(s), ${span}.`);
