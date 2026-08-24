@@ -38,16 +38,31 @@ const allPairs = comparable.has(model.slug)
   : [];
 const cost1k = (model.input * 1000) / 1_000_000;
 
+const description = seoDescription(
+  `${model.name} API pricing: ${formatPrice(model.input)} per million input tokens, ${formatPrice(model.output)} per million output, ${formatContext(model.contextWindow)} context. From ${model.providerName}, synced ${updatedAt}.`
+);
+
+/**
+ * AggregateOffer, not Offer: an Offer tells Google this page sells the model,
+ * which files it under Merchant listings and demands shop fields (image being
+ * critical, returns and shipping as warnings) that a rate card cannot honestly
+ * carry. A price range keeps the page in Product snippets only — and the
+ * low–high span doubles as the input–output rate spread.
+ */
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Product',
   name: model.name,
+  description,
+  image: new URL('/og.png', Astro.site).href,
   brand: { '@type': 'Brand', name: model.providerName },
   offers: {
-    '@type': 'Offer',
+    '@type': 'AggregateOffer',
     priceCurrency: 'USD',
-    price: model.input,
-    description: 'USD per million input tokens',
+    lowPrice: Math.min(model.input, model.output),
+    highPrice: Math.max(model.input, model.output),
+    availability: 'https://schema.org/InStock',
+    description: 'USD per million tokens, from input rate to output rate',
   },
 };
 ---
@@ -57,7 +72,7 @@ const jsonLd = {
     `${model.name} API pricing`,
     `${formatPrice(model.input)} in / ${formatPrice(model.output)} out per 1M`
   )}
-  description={seoDescription(`${model.name} API pricing: ${formatPrice(model.input)} per million input tokens, ${formatPrice(model.output)} per million output, ${formatContext(model.contextWindow)} context. From ${model.providerName}, synced ${updatedAt}.`)}
+  description={description}
   jsonLd={jsonLd}
  breadcrumbs={[['Models', '/models'], [model.name, `/models/${model.slug}`]]}>
   <section class="wrap page">
