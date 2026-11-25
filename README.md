@@ -125,6 +125,21 @@ deviații standard, nu în puncte brute: σ e 17.1 pe IFBench și 31.6 pe τ²-b
 deci 10 puncte nu înseamnă același lucru. `spread` se calculează la sync peste
 toate cele ~600 de modele din API.
 
+**Sursa scorurilor s-a închis pe 4 noiembrie 2026.** Artificial Analysis a
+retras `/api/v2/data/*` (răspunde `410 Gone`), iar succesorul gratuit,
+`/api/v2/language/models/free`, întoarce doar indicii compoziți — fix cei pe
+care secțiunea de mai sus explică de ce nu-i desenăm. Ratele de trecere au
+trecut în tariful Pro.
+
+Deci scorurile rămân măsurătoarea din 11 august, datată ca atare: 91 din cele
+261 de modele, 21% din paginile de compare. Două reguli le apără. `updatedAt`
+poartă data la care au fost aduse datele, nu data rulării, altfel o copie din
+cache s-ar prezenta ca proaspătă și ar amuți chiar avertismentul de vechime din
+`validate.mjs`. Și o rulare care nu potrivește niciun scor nu scrie nimic — o
+sursă care schimbă forma nu e același lucru cu toate modelele care își pierd
+nota, iar fișierul existent e singura copie a unor măsurători care nu se mai
+pot cere înapoi.
+
 Când o pereche împarte un singur benchmark, verdictul o spune („the only test
 both have sat"). Aproape jumătate din pagini sunt în cazul ăsta, iar „nu-l bate
 la nimic" pe baza unui singur test ar fi o afirmație mai tare decât dovada.

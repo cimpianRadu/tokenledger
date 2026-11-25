@@ -15,12 +15,27 @@
  * and leaves the existing file alone; if a model has no measurement it simply
  * has no entry, and the UI drops the section for that pair.
  */
-import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { writeFileSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const ENDPOINT = 'https://artificialanalysis.ai/api/v2/data/llms/models';
+/**
+ * Artificial Analysis retired `/api/v2/data/*` on 4 November 2026; it answers
+ * `410 Gone` with a pointer to the replacement paths. This is the documented
+ * free successor.
+ *
+ * It is not a drop-in: the free tier returns only the composite
+ * `artificial_analysis_*_index` fields, and the per-test pass rates this site
+ * renders — ifbench, gpqa, livecodebench, tau2 — are Pro-only now. The indices
+ * are the ones README explains we will not draw on a shared axis, so a live
+ * run currently matches zero usable scores and `writeIfUsable` below keeps the
+ * committed August measurements rather than replacing them with nothing.
+ *
+ * It also paginates at 200 rows, which only matters the day a Pro key makes
+ * the pass rates reachable again — then this needs a page loop.
+ */
+const ENDPOINT = 'https://artificialanalysis.ai/api/v2/language/models/free';
 const ATTRIBUTION_URL = 'https://artificialanalysis.ai/';
 const OUT = resolve(ROOT, 'src/data/benchmarks.json');
 const CACHE = resolve(ROOT, '.cache-aa.json');
@@ -146,6 +161,15 @@ function rate(v) {
   return Number((n * 100).toFixed(1));
 }
 
+/**
+ * Returns the payload and the date the measurements were actually fetched.
+ *
+ * The date matters more than it looks: stamping `updatedAt` with the run date
+ * while serving a cached copy would launder August scores as November ones and
+ * silence the staleness warning in `validate.mjs` — the check would be reading
+ * the age of the run instead of the age of the data. The cache file's mtime is
+ * the real fetch date, so it travels with the copy.
+ */
 async function loadRaw(key) {
   try {
     const res = await fetch(ENDPOINT, {
@@ -155,11 +179,14 @@ async function loadRaw(key) {
     if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
     const text = await res.text();
     writeFileSync(CACHE, text);
-    return JSON.parse(text);
+    return { raw: JSON.parse(text), fetchedAt: new Date().toISOString().slice(0, 10) };
   } catch (err) {
     if (existsSync(CACHE)) {
-      console.warn(`Fetch failed (${err.message}) — using cached copy.`);
-      return JSON.parse(readFileSync(CACHE, 'utf8'));
+      const fetchedAt = statSync(CACHE).mtime.toISOString().slice(0, 10);
+      console.warn(
+        `Fetch failed (${err.message}) — using the cached copy from ${fetchedAt}.`
+      );
+      return { raw: JSON.parse(readFileSync(CACHE, 'utf8')), fetchedAt };
     }
     throw err;
   }
@@ -196,7 +223,7 @@ if (!key) {
   process.exit(0);
 }
 
-const raw = await loadRaw(key);
+const { raw, fetchedAt } = await loadRaw(key);
 // The endpoint has shipped both a bare array and a `{ data: [...] }` envelope.
 const rows = Array.isArray(raw) ? raw : (raw.data ?? raw.models ?? []);
 if (!Array.isArray(rows) || rows.length === 0) {
@@ -281,7 +308,8 @@ for (const [key, field] of Object.entries(BENCHMARKS)) {
 }
 
 const payload = {
-  updatedAt: new Date().toISOString().slice(0, 10),
+  // The day the scores were measured, not the day this script ran.
+  updatedAt: fetchedAt,
   source: ATTRIBUTION_URL,
   // Rendered in the footer. The free API's terms require visible attribution.
   attribution: 'Capability scores measured independently by Artificial Analysis.',
@@ -291,6 +319,24 @@ const payload = {
   spread,
   models,
 };
+
+/**
+ * Never trade data for no data.
+ *
+ * A run that matches nothing is almost always the source changing shape, not
+ * every model losing its score — which is exactly what the Pro-only migration
+ * did here. Overwriting would delete the only copy of measurements that cannot
+ * be re-fetched, so the existing file wins and the exit stays clean: capability
+ * sections are optional by design and the build must not depend on this.
+ */
+if (Object.keys(models).length === 0) {
+  console.log(
+    'No usable pass rates in the response — nothing written.\n' +
+      `  ${rows.length} rows came back, none carrying ${Object.values(BENCHMARKS).join(', ')}.\n` +
+      `  ${existsSync(OUT) ? 'Existing scores left untouched.' : 'No file to fall back on.'}`
+  );
+  process.exit(0);
+}
 
 writeFileSync(OUT, JSON.stringify(payload, null, 2) + '\n');
 

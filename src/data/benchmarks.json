@@ -21,28 +21,6 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
-    "llama-3-1-8b-instant": {
-      "aaSlug": "llama-3-1-instruct-8b",
-      "via": "alias",
-      "ifbench": 28.6,
-      "gpqa": 25.9,
-      "livecodebench": 11.6,
-      "tau2": 16.4,
-      "intelligenceIndex": 7.4,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "mistral-small-latest": {
-      "aaSlug": "mistral-small",
-      "via": "auto",
-      "ifbench": null,
-      "gpqa": 38.1,
-      "livecodebench": 14.1,
-      "tau2": null,
-      "intelligenceIndex": 4.3,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
     "mistral-7b-instruct": {
       "aaSlug": "mistral-7b-instruct",
       "via": "auto",
@@ -65,25 +43,14 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
-    "gemini-2-0-flash-lite": {
-      "aaSlug": "gemini-2-0-flash-lite-preview",
-      "via": "auto",
-      "ifbench": null,
-      "gpqa": 54.2,
-      "livecodebench": 17.9,
-      "tau2": null,
-      "intelligenceIndex": 8.4,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "gemini-2-0-flash-lite-001": {
-      "aaSlug": "gemini-2-0-flash-lite-001",
-      "via": "auto",
-      "ifbench": null,
-      "gpqa": 53.5,
-      "livecodebench": 18.5,
-      "tau2": null,
-      "intelligenceIndex": 8.6,
+    "llama-3-1-8b": {
+      "aaSlug": "llama-3-1-instruct-8b",
+      "via": "remap",
+      "ifbench": 28.6,
+      "gpqa": 25.9,
+      "livecodebench": 11.6,
+      "tau2": 16.4,
+      "intelligenceIndex": 7.4,
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
@@ -95,17 +62,6 @@
       "livecodebench": 11.6,
       "tau2": 16.4,
       "intelligenceIndex": 7.4,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "gemini-2-0-flash": {
-      "aaSlug": "gemini-2-0-flash",
-      "via": "auto",
-      "ifbench": 40.2,
-      "gpqa": 62.3,
-      "livecodebench": 33.4,
-      "tau2": 29.5,
-      "intelligenceIndex": 12.2,
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
@@ -131,17 +87,6 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
-    "devstral-small-2505": {
-      "aaSlug": "devstral-small-2505",
-      "via": "auto",
-      "ifbench": 31.6,
-      "gpqa": 43.4,
-      "livecodebench": 25.8,
-      "tau2": 38,
-      "intelligenceIndex": 11.8,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
     "devstral-small-latest": {
       "aaSlug": "devstral-small",
       "via": "auto",
@@ -164,28 +109,6 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
-    "deepseek-v4-flash": {
-      "aaSlug": "deepseek-v4-flash",
-      "via": "auto",
-      "ifbench": null,
-      "gpqa": 90.8,
-      "livecodebench": null,
-      "tau2": null,
-      "intelligenceIndex": 51.8,
-      "outputTokensPerSecond": 118.6,
-      "ttftSeconds": 0.9
-    },
-    "command-r": {
-      "aaSlug": "command-r-03-2024",
-      "via": "alias",
-      "ifbench": null,
-      "gpqa": 28.4,
-      "livecodebench": 4.8,
-      "tau2": null,
-      "intelligenceIndex": 1.7,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
     "gpt-4o-mini": {
       "aaSlug": "gpt-4o-mini",
       "via": "auto",
@@ -194,6 +117,28 @@
       "livecodebench": 23.4,
       "tau2": null,
       "intelligenceIndex": 6.7,
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
+    },
+    "gpt-oss-120b": {
+      "aaSlug": "gpt-oss-120b",
+      "via": "auto",
+      "ifbench": 69,
+      "gpqa": 78.2,
+      "livecodebench": 87.8,
+      "tau2": 65.8,
+      "intelligenceIndex": 24.1,
+      "outputTokensPerSecond": 167.3,
+      "ttftSeconds": 0.5
+    },
+    "magistral-small-latest": {
+      "aaSlug": "magistral-small",
+      "via": "auto",
+      "ifbench": 24.8,
+      "gpqa": 64.1,
+      "livecodebench": 51.4,
+      "tau2": 26.6,
+      "intelligenceIndex": 10.6,
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
@@ -207,6 +152,17 @@
       "intelligenceIndex": 9,
       "outputTokensPerSecond": 123.5,
       "ttftSeconds": 0.5
+    },
+    "mistral-small-latest": {
+      "aaSlug": "mistral-small",
+      "via": "auto",
+      "ifbench": null,
+      "gpqa": 38.1,
+      "livecodebench": 14.1,
+      "tau2": null,
+      "intelligenceIndex": 4.3,
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "gpt-5-4-nano": {
       "aaSlug": "gpt-5-4-nano",
@@ -260,61 +216,6 @@
       "livecodebench": 11.6,
       "tau2": 16.4,
       "intelligenceIndex": 7.4,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "grok-4-1-fast": {
-      "aaSlug": "grok-4-1-fast",
-      "via": "auto",
-      "ifbench": 36.5,
-      "gpqa": 63.7,
-      "livecodebench": 39.9,
-      "tau2": 63.7,
-      "intelligenceIndex": 17,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "grok-4-1-fast-reasoning": {
-      "aaSlug": "grok-4-1-fast-reasoning",
-      "via": "auto",
-      "ifbench": 52.7,
-      "gpqa": 85.3,
-      "livecodebench": 82.2,
-      "tau2": 93.3,
-      "intelligenceIndex": 31.3,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "grok-4-1-fast-reasoning-latest": {
-      "aaSlug": "grok-4-1-fast-reasoning",
-      "via": "auto",
-      "ifbench": 52.7,
-      "gpqa": 85.3,
-      "livecodebench": 82.2,
-      "tau2": 93.3,
-      "intelligenceIndex": 31.3,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "grok-4-fast-reasoning": {
-      "aaSlug": "grok-4-fast-reasoning",
-      "via": "auto",
-      "ifbench": 50.5,
-      "gpqa": 84.7,
-      "livecodebench": 83.2,
-      "tau2": 65.8,
-      "intelligenceIndex": 27.9,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "grok-code-fast-1": {
-      "aaSlug": "grok-code-fast-1",
-      "via": "auto",
-      "ifbench": 41.4,
-      "gpqa": 72.7,
-      "livecodebench": 65.7,
-      "tau2": 75.7,
-      "intelligenceIndex": 22,
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
@@ -373,6 +274,17 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
+    "deepseek-v4-flash": {
+      "aaSlug": "deepseek-v4-flash",
+      "via": "auto",
+      "ifbench": null,
+      "gpqa": 90.8,
+      "livecodebench": null,
+      "tau2": null,
+      "intelligenceIndex": 51.8,
+      "outputTokensPerSecond": 118.6,
+      "ttftSeconds": 0.9
+    },
     "gemini-2-5-flash": {
       "aaSlug": "gemini-2-5-flash",
       "via": "auto",
@@ -394,17 +306,6 @@
       "intelligenceIndex": 37.4,
       "outputTokensPerSecond": 354.5,
       "ttftSeconds": 7.8
-    },
-    "gpt-oss-120b": {
-      "aaSlug": "gpt-oss-120b",
-      "via": "auto",
-      "ifbench": 69,
-      "gpqa": 78.2,
-      "livecodebench": 87.8,
-      "tau2": 65.8,
-      "intelligenceIndex": 24.1,
-      "outputTokensPerSecond": 167.3,
-      "ttftSeconds": 0.5
     },
     "qwen-3-32b": {
       "aaSlug": "qwen3-32b-instruct",
@@ -439,17 +340,6 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
-    "deepseek-v4-pro": {
-      "aaSlug": "deepseek-v4-pro",
-      "via": "auto",
-      "ifbench": 76.5,
-      "gpqa": 88.8,
-      "livecodebench": null,
-      "tau2": 96.2,
-      "intelligenceIndex": 45.3,
-      "outputTokensPerSecond": 70.5,
-      "ttftSeconds": 1.3
-    },
     "gemini-3-flash-preview": {
       "aaSlug": "gemini-3-flash",
       "via": "auto",
@@ -472,17 +362,6 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
-    "magistral-small-latest": {
-      "aaSlug": "magistral-small",
-      "via": "auto",
-      "ifbench": 24.8,
-      "gpqa": 64.1,
-      "livecodebench": 51.4,
-      "tau2": 26.6,
-      "intelligenceIndex": 10.6,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
     "mistral-large-3": {
       "aaSlug": "mistral-large-3",
       "via": "alias",
@@ -493,17 +372,6 @@
       "intelligenceIndex": 15.9,
       "outputTokensPerSecond": 58.1,
       "ttftSeconds": 1
-    },
-    "mistral-large-latest": {
-      "aaSlug": "mistral-large",
-      "via": "auto",
-      "ifbench": null,
-      "gpqa": 35.1,
-      "livecodebench": 17.8,
-      "tau2": null,
-      "intelligenceIndex": 4.1,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
     },
     "deepseek-r1": {
       "aaSlug": "deepseek-r1",
@@ -516,47 +384,14 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
-    "llama-3-3-70b-versatile": {
-      "aaSlug": "llama-3-3-instruct-70b",
-      "via": "alias",
-      "ifbench": 47.1,
-      "gpqa": 49.8,
-      "livecodebench": 28.8,
-      "tau2": 26.6,
-      "intelligenceIndex": 9.3,
-      "outputTokensPerSecond": 81.8,
-      "ttftSeconds": 0.7
-    },
-    "llama3-1-70b": {
+    "llama-3-1-70b": {
       "aaSlug": "llama-3-1-instruct-70b",
-      "via": "auto",
+      "via": "remap",
       "ifbench": 34.4,
       "gpqa": 40.9,
       "livecodebench": 23.2,
       "tau2": 15.2,
       "intelligenceIndex": 6.5,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "kimi-k2-0905-preview": {
-      "aaSlug": "kimi-k2-0905",
-      "via": "auto",
-      "ifbench": 41.7,
-      "gpqa": 76.7,
-      "livecodebench": 61,
-      "tau2": 73.4,
-      "intelligenceIndex": 24,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "kimi-k2-thinking": {
-      "aaSlug": "kimi-k2-thinking",
-      "via": "auto",
-      "ifbench": 68.1,
-      "gpqa": 83.8,
-      "livecodebench": 85.3,
-      "tau2": 93,
-      "intelligenceIndex": 33.5,
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
@@ -571,6 +406,17 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
+    "mistral-large-latest": {
+      "aaSlug": "mistral-large",
+      "via": "auto",
+      "ifbench": null,
+      "gpqa": 35.1,
+      "livecodebench": 17.8,
+      "tau2": null,
+      "intelligenceIndex": 4.1,
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
+    },
     "llama-2-70b-chat": {
       "aaSlug": "llama-2-chat-70b",
       "via": "auto",
@@ -581,6 +427,17 @@
       "intelligenceIndex": 2.6,
       "outputTokensPerSecond": null,
       "ttftSeconds": null
+    },
+    "gemini-3-6-flash": {
+      "aaSlug": "gemini-3-6-flash",
+      "via": "auto",
+      "ifbench": null,
+      "gpqa": 92.8,
+      "livecodebench": null,
+      "tau2": null,
+      "intelligenceIndex": 51.6,
+      "outputTokensPerSecond": 212.6,
+      "ttftSeconds": 15
     },
     "gpt-5-4-mini": {
       "aaSlug": "gpt-5-4-mini",
@@ -645,6 +502,17 @@
       "livecodebench": null,
       "tau2": null,
       "intelligenceIndex": 11.6,
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
+    },
+    "grok-code-fast-1": {
+      "aaSlug": "grok-code-fast-1",
+      "via": "auto",
+      "ifbench": 41.4,
+      "gpqa": 72.7,
+      "livecodebench": 65.7,
+      "tau2": 75.7,
+      "intelligenceIndex": 22,
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
@@ -736,6 +604,17 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
+    "grok-4-20-0309-reasoning": {
+      "aaSlug": "grok-4-20-0309",
+      "via": "alias",
+      "ifbench": 82.9,
+      "gpqa": 88.5,
+      "livecodebench": null,
+      "tau2": 96.5,
+      "intelligenceIndex": 37.4,
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
+    },
     "grok-4-3": {
       "aaSlug": "grok-4-3",
       "via": "auto",
@@ -758,6 +637,17 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
+    "deepseek-v4-pro": {
+      "aaSlug": "deepseek-v4-pro",
+      "via": "auto",
+      "ifbench": 76.5,
+      "gpqa": 88.8,
+      "livecodebench": null,
+      "tau2": 96.2,
+      "intelligenceIndex": 45.3,
+      "outputTokensPerSecond": 70.5,
+      "ttftSeconds": 1.3
+    },
     "gemini-3-5-flash": {
       "aaSlug": "gemini-3-5-flash",
       "via": "auto",
@@ -769,16 +659,27 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
-    "gemini-3-6-flash": {
-      "aaSlug": "gemini-3-6-flash",
+    "magistral-medium-latest": {
+      "aaSlug": "magistral-medium",
+      "via": "auto",
+      "ifbench": 25.1,
+      "gpqa": 67.9,
+      "livecodebench": 52.7,
+      "tau2": 23.1,
+      "intelligenceIndex": 12.5,
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
+    },
+    "mistral-medium": {
+      "aaSlug": "mistral-medium",
       "via": "auto",
       "ifbench": null,
-      "gpqa": 92.8,
-      "livecodebench": null,
+      "gpqa": 34.9,
+      "livecodebench": 9.9,
       "tau2": null,
-      "intelligenceIndex": 51.6,
-      "outputTokensPerSecond": 212.6,
-      "ttftSeconds": 15
+      "intelligenceIndex": 3.2,
+      "outputTokensPerSecond": null,
+      "ttftSeconds": null
     },
     "mistral-medium-3-5": {
       "aaSlug": "mistral-medium-3-5",
@@ -834,17 +735,6 @@
       "intelligenceIndex": 55.3,
       "outputTokensPerSecond": 89.9,
       "ttftSeconds": 141.7
-    },
-    "gemini-3-pro-preview": {
-      "aaSlug": "gemini-3-pro",
-      "via": "auto",
-      "ifbench": 70.4,
-      "gpqa": 90.8,
-      "livecodebench": 91.7,
-      "tau2": 87.1,
-      "intelligenceIndex": 40.6,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
     },
     "gemini-3-1-pro-preview": {
       "aaSlug": "gemini-3-1-pro-preview",
@@ -912,39 +802,6 @@
       "outputTokensPerSecond": 58.8,
       "ttftSeconds": 0.9
     },
-    "magistral-medium-2509": {
-      "aaSlug": "magistral-medium-2509",
-      "via": "auto",
-      "ifbench": 43,
-      "gpqa": 73.9,
-      "livecodebench": 75,
-      "tau2": 52,
-      "intelligenceIndex": 18,
-      "outputTokensPerSecond": 136.7,
-      "ttftSeconds": 0.7
-    },
-    "magistral-medium-latest": {
-      "aaSlug": "magistral-medium",
-      "via": "auto",
-      "ifbench": 25.1,
-      "gpqa": 67.9,
-      "livecodebench": 52.7,
-      "tau2": 23.1,
-      "intelligenceIndex": 12.5,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "pixtral-large-2411": {
-      "aaSlug": "pixtral-large-2411",
-      "via": "auto",
-      "ifbench": 34.5,
-      "gpqa": 50.5,
-      "livecodebench": 26.1,
-      "tau2": 36.5,
-      "intelligenceIndex": 8,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
     "o3": {
       "aaSlug": "o3",
       "via": "auto",
@@ -955,17 +812,6 @@
       "intelligenceIndex": 31.1,
       "outputTokensPerSecond": 127.8,
       "ttftSeconds": 5.7
-    },
-    "grok-4-20-0309-reasoning": {
-      "aaSlug": "grok-4-20-0309",
-      "via": "alias",
-      "ifbench": 82.9,
-      "gpqa": 88.5,
-      "livecodebench": null,
-      "tau2": 96.5,
-      "intelligenceIndex": 37.4,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
     },
     "grok-4-5": {
       "aaSlug": "grok-4-5",
@@ -989,39 +835,6 @@
       "outputTokensPerSecond": 49.9,
       "ttftSeconds": 16.8
     },
-    "zai-glm-4-6": {
-      "aaSlug": "glm-4-6",
-      "via": "alias",
-      "ifbench": 36.7,
-      "gpqa": 63.2,
-      "livecodebench": 56.1,
-      "tau2": 76.9,
-      "intelligenceIndex": 23.4,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "zai-glm-4-7": {
-      "aaSlug": "glm-4-7",
-      "via": "alias",
-      "ifbench": 67.9,
-      "gpqa": 85.9,
-      "livecodebench": 89.4,
-      "tau2": 95.9,
-      "intelligenceIndex": 34.5,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "command-r-plus": {
-      "aaSlug": "command-r-plus-04-2024",
-      "via": "alias",
-      "ifbench": null,
-      "gpqa": 32.3,
-      "livecodebench": 12.2,
-      "tau2": null,
-      "intelligenceIndex": 2.6,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
     "gpt-4o": {
       "aaSlug": "gpt-4o",
       "via": "auto",
@@ -1044,17 +857,6 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
-    "mistral-medium": {
-      "aaSlug": "mistral-medium",
-      "via": "auto",
-      "ifbench": null,
-      "gpqa": 34.9,
-      "livecodebench": 9.9,
-      "tau2": null,
-      "intelligenceIndex": 3.2,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
     "claude-sonnet-4-6": {
       "aaSlug": "claude-sonnet-4-6",
       "via": "auto",
@@ -1063,17 +865,6 @@
       "livecodebench": null,
       "tau2": 79.5,
       "intelligenceIndex": 36.8,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "mistral-large-2407": {
-      "aaSlug": "mistral-large-2407",
-      "via": "auto",
-      "ifbench": 31.6,
-      "gpqa": 47.2,
-      "livecodebench": 26.7,
-      "tau2": 33,
-      "intelligenceIndex": 7,
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
@@ -1088,49 +879,27 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
-    "grok-3": {
-      "aaSlug": "grok-3",
-      "via": "auto",
-      "ifbench": 46.9,
-      "gpqa": 69.3,
-      "livecodebench": 42.5,
-      "tau2": 48.8,
-      "intelligenceIndex": 18.6,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
+    "gpt-5-6": {
+      "aaSlug": "gpt-5-6-sol",
+      "via": "alias",
+      "ifbench": 72.7,
+      "gpqa": 94.1,
+      "livecodebench": null,
+      "tau2": 85.1,
+      "intelligenceIndex": 60.9,
+      "outputTokensPerSecond": 68.8,
+      "ttftSeconds": 74.9
     },
-    "grok-3-latest": {
-      "aaSlug": "grok-3",
+    "gpt-5-6-sol": {
+      "aaSlug": "gpt-5-6-sol",
       "via": "auto",
-      "ifbench": 46.9,
-      "gpqa": 69.3,
-      "livecodebench": 42.5,
-      "tau2": 48.8,
-      "intelligenceIndex": 18.6,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "grok-4": {
-      "aaSlug": "grok-4",
-      "via": "auto",
-      "ifbench": 53.7,
-      "gpqa": 87.7,
-      "livecodebench": 81.9,
-      "tau2": 74.9,
-      "intelligenceIndex": 34.1,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "grok-4-latest": {
-      "aaSlug": "grok-4",
-      "via": "auto",
-      "ifbench": 53.7,
-      "gpqa": 87.7,
-      "livecodebench": 81.9,
-      "tau2": 74.9,
-      "intelligenceIndex": 34.1,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
+      "ifbench": 72.7,
+      "gpqa": 94.1,
+      "livecodebench": null,
+      "tau2": 85.1,
+      "intelligenceIndex": 60.9,
+      "outputTokensPerSecond": 68.8,
+      "ttftSeconds": 74.9
     },
     "claude-opus-4-5": {
       "aaSlug": "claude-opus-4-5",
@@ -1209,39 +978,6 @@
       "outputTokensPerSecond": null,
       "ttftSeconds": null
     },
-    "gpt-5-6": {
-      "aaSlug": "gpt-5-6-sol",
-      "via": "alias",
-      "ifbench": 72.7,
-      "gpqa": 94.1,
-      "livecodebench": null,
-      "tau2": 85.1,
-      "intelligenceIndex": 60.9,
-      "outputTokensPerSecond": 68.8,
-      "ttftSeconds": 74.9
-    },
-    "gpt-5-6-sol": {
-      "aaSlug": "gpt-5-6-sol",
-      "via": "auto",
-      "ifbench": 72.7,
-      "gpqa": 94.1,
-      "livecodebench": null,
-      "tau2": 85.1,
-      "intelligenceIndex": 60.9,
-      "outputTokensPerSecond": 68.8,
-      "ttftSeconds": 74.9
-    },
-    "grok-beta": {
-      "aaSlug": "grok-beta",
-      "via": "auto",
-      "ifbench": null,
-      "gpqa": 47.1,
-      "livecodebench": 24.1,
-      "tau2": null,
-      "intelligenceIndex": 7.3,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
     "claude-fable-5": {
       "aaSlug": "claude-fable-5",
       "via": "auto",
@@ -1254,17 +990,6 @@
       "ttftSeconds": 75
     },
     "gpt-4-turbo": {
-      "aaSlug": "gpt-4-turbo",
-      "via": "auto",
-      "ifbench": null,
-      "gpqa": null,
-      "livecodebench": 29.1,
-      "tau2": null,
-      "intelligenceIndex": 7.7,
-      "outputTokensPerSecond": null,
-      "ttftSeconds": null
-    },
-    "gpt-4-turbo-preview": {
       "aaSlug": "gpt-4-turbo",
       "via": "auto",
       "ifbench": null,
