@@ -11,7 +11,8 @@
     "indexnow": "node scripts/indexnow.mjs",
     "check": "node scripts/validate.mjs",
     "build": "astro build && node scripts/validate.mjs --dist",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "health": "node scripts/healthcheck.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^4.2.0",

@@ -1,0 +1,30 @@
+# Daily canary on the live site.
+#
+# Runs with no secrets and no npm install — scripts/healthcheck.mjs only needs
+# site.config.mjs and fetch. A failure here is GitHub's job to announce: a
+# failed scheduled workflow mails the repository owner, which is why this does
+# not carry a mail service of its own.
+#
+# What it would catch, in the order these things actually go wrong: the weekly
+# sync dying so prices quietly age past 30 days, a deploy that never shipped, a
+# route that stopped generating (the sitemap shrinks), and the site being down.
+name: Health check
+
+on:
+  schedule:
+    # Daily at 06:47 UTC, after the Monday sync has had time to deploy.
+    - cron: '47 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check the live site
+        run: node scripts/healthcheck.mjs

@@ -1,16 +1,19 @@
 /**
  * Tells Bing the site changed, via IndexNow.
  *
- *   npm run indexnow            # every URL in the sitemap
- *   npm run indexnow -- --dry   # print what would be sent, send nothing
+ *   npm run indexnow                       # every URL in the sitemap
+ *   npm run indexnow -- <url> [<url>...]   # only these URLs
+ *   npm run indexnow -- --dry              # print what would be sent, send nothing
  *
  * Bing feeds Copilot and ChatGPT search, and IndexNow is the only way to reach
  * it in minutes rather than waiting for a crawl. Yandex, Seznam and Naver share
  * the protocol. Google ignores it — Search Console and the sitemap cover that.
  *
- * Submitting all 831 URLs is a launch move, not a weekly one. IndexNow is for
+ * Submitting every URL is a launch move, not a weekly one. IndexNow is for
  * "this changed"; sending the whole site every sync trains the endpoint to
- * ignore you. Use it after a launch or a structural change.
+ * ignore you. Use it after a launch or a structural change — and after
+ * publishing a page, pass just that page's URL, which is what the content
+ * routine does.
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
@@ -20,6 +23,18 @@ import { SITE, INDEXNOW_KEY } from '../site.config.mjs';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const host = new URL(SITE).host;
 const dry = process.argv.includes('--dry');
+
+/**
+ * Explicit URLs win over the sitemap. They are checked against SITE because a
+ * submission for another host is rejected for the whole batch, and the
+ * endpoint's error does not say which URL was the offender.
+ */
+const explicit = process.argv.slice(2).filter((a) => a.startsWith('http'));
+const foreign = explicit.filter((u) => new URL(u).host !== host);
+if (foreign.length) {
+  console.error(`✗ Not on ${host}: ${foreign.join(', ')}`);
+  process.exit(1);
+}
 
 /**
  * The key file is the proof of ownership. If it drifts from the constant the
@@ -41,16 +56,20 @@ if (onDisk !== INDEXNOW_KEY) {
 
 /** Read from the deployed sitemap rather than dist/, so a stale local build
  *  cannot submit URLs the live site does not serve. */
-const sitemapIndex = await fetch(new URL('/sitemap-index.xml', SITE)).then((r) => {
-  if (!r.ok) throw new Error(`sitemap-index.xml returned ${r.status}`);
-  return r.text();
-});
+let urlList = explicit;
+let shards = [];
+if (!urlList.length) {
+  const sitemapIndex = await fetch(new URL('/sitemap-index.xml', SITE)).then((r) => {
+    if (!r.ok) throw new Error(`sitemap-index.xml returned ${r.status}`);
+    return r.text();
+  });
 
-const shards = [...sitemapIndex.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-const urlList = [];
-for (const shard of shards) {
-  const xml = await fetch(shard).then((r) => r.text());
-  urlList.push(...[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
+  shards = [...sitemapIndex.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  urlList = [];
+  for (const shard of shards) {
+    const xml = await fetch(shard).then((r) => r.text());
+    urlList.push(...[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
+  }
 }
 
 if (!urlList.length) {
@@ -58,7 +77,26 @@ if (!urlList.length) {
   process.exit(1);
 }
 
-console.log(`${urlList.length} URLs from ${shards.length} sitemap shard(s).`);
+/**
+ * A URL the live site does not serve wastes the submission and teaches the
+ * endpoint that this host reports pages that are not there, so each explicit
+ * URL is checked before it is sent.
+ */
+if (explicit.length) {
+  const missing = [];
+  for (const u of explicit) {
+    const res = await fetch(u, { method: 'HEAD' }).catch(() => null);
+    if (!res || !res.ok) missing.push(`${u} (${res ? res.status : 'unreachable'})`);
+  }
+  if (missing.length) {
+    console.error(`✗ Not live yet: ${missing.join(', ')}`);
+    console.error('  Wait for the deploy before submitting.');
+    process.exit(1);
+  }
+  console.log(`${urlList.length} URL(s) given on the command line, all live.`);
+} else {
+  console.log(`${urlList.length} URLs from ${shards.length} sitemap shard(s).`);
+}
 console.log(`  first: ${urlList[0]}`);
 console.log(`  last:  ${urlList[urlList.length - 1]}`);
 
