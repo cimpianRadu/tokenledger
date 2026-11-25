@@ -77,6 +77,14 @@ căutări/lună nu se pierde în tăcere.
 Avertismentele repetitive se grupează, ca să nu îneci un `FAIL` real în 186 de
 note despre lungimea titlului.
 
+## Ce rulează singur
+
+Prețurile se sincronizează luni, un canar verifică zilnic site-ul live, o
+pagină nouă apare joi din coada de conținut, măsurătorile se refac pe 3 ale
+lunii, iar pe 1 și 15 pleacă un raport pe email. Ce rulează unde, ce se
+întâmplă când pică și ce are nevoie de o cheie sau de un cont:
+[`docs/automatizare.md`](docs/automatizare.md).
+
 ## Deciziile care contează
 
 **Comparator, nu calculator.** Formula de tokenizare e publică și un LLM ți-o
