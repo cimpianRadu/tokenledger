@@ -240,6 +240,11 @@ const KEYWORD_TARGETS = [
   ['pricing/moonshot/index.html', 'kimi api pricing'],
   ['pricing/cohere/index.html', 'cohere api pricing'],
   ['methodology/index.html', 'methodology'],
+  ['cheapest/index.html', 'cheapest llm api'],
+  ['token-counter/index.html', 'llm token counter'],
+  ['token-counter/openai/index.html', 'openai token counter'],
+  ['token-counter/anthropic/index.html', 'claude token counter'],
+  ['token-counter/gemini/index.html', 'gemini token counter'],
 ];
 
 /**

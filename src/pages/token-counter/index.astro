@@ -1,0 +1,178 @@
+---
+import { encode } from 'gpt-tokenizer/encoding/o200k_base';
+import Base from '../../layouts/Base.astro';
+import {
+  models,
+  orderedProviders,
+  modelsFor,
+  tierOf,
+  formatPrice,
+  seoTitle,
+  seoDescription,
+  updatedAt,
+} from '../../lib/models';
+import { driftFor, REFERENCE_TEXT } from '../../lib/tokenizer';
+
+const baseTokens = encode(REFERENCE_TEXT).length;
+const refWords = REFERENCE_TEXT.trim().split(/\s+/).length;
+
+const rows = orderedProviders.map((p) => {
+  const drift = driftFor(p.key);
+  const list = modelsFor(p.key);
+  /** Same pool the provider page quotes "from $x" against — current models, so
+   *  the figure is a rate someone can still choose rather than the floor of a
+   *  two-year-old snapshot. */
+  const pool = list.filter((m) => tierOf(m) === 'current');
+  const from = pool.length ? pool : list;
+  const cheapest = from.reduce((lo, m) => (m.input < lo.input ? m : lo), from[0]);
+  return {
+    provider: p,
+    drift,
+    tokensPerWord: (baseTokens * drift) / refWords,
+    cheapest,
+    count: list.length,
+  };
+});
+
+const exactCount = models.filter((m) => m.counting === 'exact').length;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'How many tokens is 1,000 words?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `About ${Math.round(((baseTokens / refWords) * 1000) / 10) * 10} tokens on OpenAI's encoder for English prose, and 5–15% more on families that tokenize denser. Code, JSON and non-Latin scripts run denser still.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is there one token counter that works for every LLM?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `No, and any tool claiming otherwise is estimating. Only OpenAI publishes a tokenizer, so counts for its ${exactCount} models are exact and every other family is that count scaled by a published ratio, labelled as an estimate.`,
+      },
+    },
+  ],
+};
+---
+
+<Base
+  title={seoTitle('LLM token counter', `every provider, ${models.length} models`)}
+  description={seoDescription(`Count tokens for OpenAI, Claude, Gemini, Grok and 8 more providers, and see what the prompt costs. Runs in your browser. Prices synced ${updatedAt}.`)}
+  jsonLd={jsonLd}
+  breadcrumbs={[['Token counters', '/token-counter/']]}
+>
+  <section class="wrap page">
+    <span class="eyebrow"
+      >{orderedProviders.length} providers · {models.length} models · synced {updatedAt}</span
+    >
+    <h1>LLM token counter</h1>
+    <p class="lede">
+      One counter per provider, because there is no such thing as a token count
+      that is right for all of them. The same paragraph is a different number of
+      tokens to OpenAI than to Claude, and the difference is what you are billed
+      on. Pick the family you are pricing.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Counter</th>
+            <th scope="col">Counting</th>
+            <th scope="col" class="num">Tokens / word</th>
+            <th scope="col" class="num">Models</th>
+            <th scope="col" class="num">From</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr>
+              <td>
+                <a href={`/token-counter/${r.provider.slug}`}>
+                  {r.provider.brand} token counter
+                </a>
+              </td>
+              <td>
+                <span class={`badge badge--${r.provider.counting}`}>
+                  {r.provider.counting}
+                </span>
+              </td>
+              <td class="num mono">{r.tokensPerWord.toFixed(2)}</td>
+              <td class="num">{r.count}</td>
+              <td class="num">{formatPrice(r.cheapest.input)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="sub">Why the counts differ</h2>
+    <p>
+      A tokenizer is part of a model, not a standard. OpenAI publishes theirs,
+      so the {exactCount} OpenAI models on this site are counted by running the
+      real encoder in your browser. No other lab publishes one. Every other
+      family here is that same encoder's count scaled by the ratio the provider
+      publishes for its own tokenizer — 1.05 for Gemini, 1.15 for Claude — and
+      labelled <em>estimated</em> on every figure it touches.
+    </p>
+    <p>
+      Which means: use these numbers to choose a model and size a budget. Do not
+      use them to reconcile an invoice. A tool that hands you a single exact
+      count for twelve providers is quietly doing the same scaling and not
+      telling you.
+    </p>
+
+    <h2 class="sub">Questions</h2>
+    <dl class="qa">
+      {jsonLd.mainEntity.map((q) => (
+        <div>
+          <dt>{q.name}</dt>
+          <dd>{q.acceptedAnswer.text}</dd>
+        </div>
+      ))}
+    </dl>
+
+    <p class="after-table">
+      <a href="/">Count tokens across all providers at once →</a>
+    </p>
+  </section>
+</Base>
+
+<style>
+  .page {
+    padding-top: 3rem;
+  }
+  .lede {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0.9rem 0 2.5rem;
+  }
+  .sub {
+    margin-top: 3rem;
+  }
+  .qa {
+    margin: 1.25rem 0 0;
+    display: grid;
+    gap: 1.25rem;
+    max-width: 68ch;
+  }
+  .qa dt {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  .qa dd {
+    margin: 0;
+    color: var(--ink-soft);
+    line-height: 1.65;
+  }
+  .after-table {
+    margin-top: 2.5rem;
+    font-size: 0.9rem;
+  }
+</style>

@@ -29,10 +29,18 @@ trece fie așa, fie așa.
 |---|---|---|
 | `/` | 1 | `token counter` 5.400/lună, bid până la $23 |
 | `/pricing/{provider}` | 12 | `claude api pricing` 6.600/lună, în creștere |
-| `/models/{model}` | 249 | long-tail pe nume de model |
+| `/token-counter/` | 1 | `llm token counter` 320 + `ai token counter` 260/lună |
+| `/token-counter/{provider}` | 12 | `openai token counter` 590, `claude` 320 (KD 8), `gemini` 170 (KD 9) |
+| `/cheapest` | 1 | `cheapest llm api` 260/lună, în creștere |
+| `/models/{model}` | 261 | long-tail pe nume de model |
 | `/compare/{a}-vs-{b}` | 561 | intenție de comparație, bid mai bun |
 
-824 pagini statice, build în ~8s.
+856 pagini statice, build în ~6s.
+
+Volumele din august 2026 și analiza concurenței sunt în
+[`docs/keyword-research.md`](docs/keyword-research.md). Clusterul token counter
+e ținta pentru care există rutele de mai sus: ~7.800 căutări/lună la KD 4–30, și
+niciunul dintre cele 132 de top-5 ale lui `pricepertoken.com` nu e pe el.
 
 ## Validare
 

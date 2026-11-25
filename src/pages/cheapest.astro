@@ -1,0 +1,401 @@
+---
+import Base from '../layouts/Base.astro';
+import {
+  models,
+  providers,
+  orderedProviders,
+  modelsFor,
+  tierOf,
+  formatPrice,
+  formatContext,
+  costColor,
+  seoTitle,
+  seoDescription,
+  updatedAt,
+} from '../lib/models';
+import {
+  benchmarkFor,
+  blendedPrice,
+  hasBenchmarks,
+  LENSES,
+} from '../lib/benchmarks';
+
+/**
+ * "Cheapest" has three answers and the question does not say which one it
+ * means, so the page gives all three rather than picking one and being quietly
+ * wrong for two thirds of readers. Input alone flatters models that charge
+ * heavily for output; output alone flatters the reverse; the blend is the one
+ * that survives contact with a real workload.
+ */
+const paid = models.filter((m) => m.input > 0 && !m.deprecatedOn);
+
+/**
+ * Drops a row that is another row's name plus a suffix at the same provider and
+ * the same price — `gemini-3.1-flash-lite-preview` next to
+ * `gemini-3.1-flash-lite`, identical in every column.
+ *
+ * The alias folding in `scripts/lib/aliases.mjs` is what should catch these,
+ * and a bare `-preview` currently slips past it. Until it does, a ranked table
+ * is the wrong place to show the same model twice: it costs a real row in a top
+ * fifteen and reads as a mistake to anyone who can see both names.
+ */
+function dedupeSiblings<T extends { name: string; provider: string; input: number; output: number }>(
+  rows: T[]
+): T[] {
+  const kept: T[] = [];
+  for (const row of rows) {
+    const dup = kept.some(
+      (k) =>
+        k.provider === row.provider &&
+        k.input === row.input &&
+        k.output === row.output &&
+        (row.name.startsWith(k.name) || k.name.startsWith(row.name))
+    );
+    if (!dup) kept.push(row);
+  }
+  return kept;
+}
+const current = paid.filter((m) => tierOf(m) === 'current');
+
+const byInput = [...paid].sort((a, b) => a.input - b.input);
+const byOutput = [...paid].sort((a, b) => a.output - b.output);
+const byBlend = [...paid].sort((a, b) => blendedPrice(a) - blendedPrice(b));
+
+const free = models.filter((m) => m.input === 0 && m.output === 0);
+
+const cheapestInput = byInput[0];
+const cheapestOutput = byOutput[0];
+const cheapestBlend = byBlend[0];
+
+const table = dedupeSiblings(byBlend).slice(0, 15);
+
+/**
+ * The cheapest model that can still do the work.
+ *
+ * Raw cheapest is almost always a small legacy model, and recommending it
+ * without a capability floor is how a price comparison becomes bad advice. The
+ * floor is a measured pass rate, not an index — 40% on a benchmark the model
+ * actually sat. Where nothing is measured the section does not render, because
+ * half a proof is worse than none.
+ */
+const MIN_SCORE = 40;
+const capable = hasBenchmarks
+  ? dedupeSiblings(current)
+      .map((m) => {
+        const b = benchmarkFor(m.slug);
+        if (!b) return null;
+        const scores = LENSES.map((l) => b[l.key]).filter(
+          (v): v is number => v !== null
+        );
+        // Two measurements minimum. A single 90% pass rate ranked next to a
+        // four-test average reads as the better model when it is only the
+        // less-tested one — the same reason a comparison page with one shared
+        // benchmark refuses to say "beats it on nothing".
+        if (scores.length < 2) return null;
+        const mean = scores.reduce((s, v) => s + v, 0) / scores.length;
+        return { model: m, mean, tests: scores.length };
+      })
+      .filter((r): r is { model: (typeof current)[number]; mean: number; tests: number } => r !== null)
+      .filter((r) => r.mean >= MIN_SCORE)
+      .sort((a, b) => blendedPrice(a.model) - blendedPrice(b.model))
+      .slice(0, 8)
+  : [];
+
+/** One row per provider — the question behind "cheapest" is often "cheapest
+ *  without leaving the vendor we already have a contract with". */
+const perProvider = orderedProviders
+  .map((p) => {
+    const list = modelsFor(p.key).filter((m) => m.input > 0 && !m.deprecatedOn);
+    if (!list.length) return null;
+    const pick = list.reduce((lo, m) =>
+      blendedPrice(m) < blendedPrice(lo) ? m : lo
+    );
+    return { provider: p, model: pick };
+  })
+  .filter((r): r is { provider: (typeof orderedProviders)[number]; model: (typeof paid)[number] } => r !== null)
+  .sort((a, b) => blendedPrice(a.model) - blendedPrice(b.model));
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'What is the cheapest LLM API?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `On input tokens it is ${cheapestInput.name} from ${cheapestInput.providerName} at ${formatPrice(cheapestInput.input)} per million. On a 3:1 input-weighted blend, closer to a real workload, it is ${cheapestBlend.name} at ${formatPrice(blendedPrice(cheapestBlend))} per million. Rates are list prices synced ${updatedAt} across ${models.length} models from ${providers.length} providers.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is the cheapest LLM API good enough to use?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: capable.length
+          ? `Often not. The cheapest listed rates belong to small models. Among current models with an independently measured pass rate of at least ${MIN_SCORE}%, the cheapest is ${capable[0].model.name} at ${formatPrice(blendedPrice(capable[0].model))} per million blended — ${(blendedPrice(capable[0].model) / blendedPrice(cheapestBlend)).toFixed(1)}× the cheapest rate on the board.`
+          : 'The cheapest listed rates belong to small models, which are a fine choice for extraction and classification and a poor one for agent work or hard reasoning. Price alone does not answer it.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Are there free LLM APIs?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: free.length
+          ? `${free.length} of the ${models.length} models tracked here list a rate of $0. That is the published list rate and not a promise of an unlimited free tier — rate limits, trial credits and eligibility rules are the provider's and change without notice.`
+          : 'None of the models tracked here list a rate of $0. Free tiers exist at several providers as trial credits and rate-limited access, but they are not list prices and are not tracked on this page.',
+      },
+    },
+  ],
+};
+---
+
+<Base
+  title={seoTitle('Cheapest LLM API', `${models.length} models ranked by price`)}
+  description={seoDescription(`The cheapest LLM APIs by input, output and blended cost across ${models.length} models. Plus the cheapest that still scores above a capability floor. Synced ${updatedAt}.`)}
+  jsonLd={jsonLd}
+  breadcrumbs={[['Cheapest LLM API', '/cheapest']]}
+>
+  <section class="wrap page">
+    <span class="eyebrow"
+      >{paid.length} priced models · {providers.length} providers · synced {updatedAt}</span
+    >
+    <h1>Cheapest LLM API</h1>
+    <p class="lede">
+      Three answers, because the question has three meanings. A model that is
+      cheapest on input can be among the dearest on output, and which one
+      matters depends on whether you are feeding it documents or asking it to
+      write them.
+    </p>
+
+    <dl class="facts">
+      <div>
+        <dt>Cheapest input</dt>
+        <dd class="mono">{formatPrice(cheapestInput.input)}</dd>
+        <dd class="facts__who">
+          <a href={`/models/${cheapestInput.slug}`}>{cheapestInput.name}</a>
+        </dd>
+      </div>
+      <div>
+        <dt>Cheapest output</dt>
+        <dd class="mono">{formatPrice(cheapestOutput.output)}</dd>
+        <dd class="facts__who">
+          <a href={`/models/${cheapestOutput.slug}`}>{cheapestOutput.name}</a>
+        </dd>
+      </div>
+      <div>
+        <dt>Cheapest blended</dt>
+        <dd class="mono">{formatPrice(blendedPrice(cheapestBlend))}</dd>
+        <dd class="facts__who">
+          <a href={`/models/${cheapestBlend.slug}`}>{cheapestBlend.name}</a>
+        </dd>
+      </div>
+    </dl>
+
+    <h2>The 15 cheapest, blended</h2>
+    <p>
+      Ranked on input × 3 + output, divided by four — the ratio most production
+      traffic actually runs at, since almost every workload reads more than it
+      writes. USD per million tokens.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Model</th>
+            <th scope="col">Provider</th>
+            <th scope="col" class="num">Blended</th>
+            <th scope="col" class="num">Input</th>
+            <th scope="col" class="num">Output</th>
+            <th scope="col" class="num">Context</th>
+          </tr>
+        </thead>
+        <tbody>
+          {table.map((m) => (
+            <tr>
+              <td><a href={`/models/${m.slug}`}>{m.name}</a></td>
+              <td><a href={`/pricing/${m.providerSlug}`}>{m.providerName}</a></td>
+              <td class="num">
+                {/* Tinted by the number in the cell, not by the input rate it
+                    is derived from — a $0.058 figure wearing $0.05's colour is
+                    a scale the reader cannot check against the column. */}
+                <span class="cost" style={`color:${costColor(blendedPrice(m))}`}>
+                  {formatPrice(blendedPrice(m))}
+                </span>
+              </td>
+              <td class="num">{formatPrice(m.input)}</td>
+              <td class="num">{formatPrice(m.output)}</td>
+              <td class="num">{formatContext(m.contextWindow)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    {capable.length > 0 && (
+      <>
+        <h2 class="sub">Cheapest that can still do the work</h2>
+        <p>
+          The rows above are led by small models, which is what "cheapest"
+          honestly returns and rarely what anyone should deploy. This table
+          applies a floor: current models only, and only those averaging at
+          least {MIN_SCORE}% across at least two independently measured pass
+          rates. Nothing here is scored by us, and a model measured once or not
+          at all is absent rather than assumed.
+        </p>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Model</th>
+                <th scope="col">Provider</th>
+                <th scope="col" class="num">Blended</th>
+                <th scope="col" class="num">Mean pass rate</th>
+                <th scope="col" class="num">Tests</th>
+              </tr>
+            </thead>
+            <tbody>
+              {capable.map((r) => (
+                <tr>
+                  <td><a href={`/models/${r.model.slug}`}>{r.model.name}</a></td>
+                  <td>
+                    <a href={`/pricing/${r.model.providerSlug}`}>
+                      {r.model.providerName}
+                    </a>
+                  </td>
+                  <td class="num">{formatPrice(blendedPrice(r.model))}</td>
+                  <td class="num">{r.mean.toFixed(1)}%</td>
+                  <td class="num">{r.tests}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="note">
+          Pass rates are the share of a fixed public test set answered
+          correctly, averaged over the tests each model has sat — so a model
+          measured on two tests and one measured on four are not strictly
+          comparable, and the count is shown for that reason. Compare a model to
+          a model, not a row to a row.
+        </p>
+      </>
+    )}
+
+    <h2 class="sub">Cheapest at each provider</h2>
+    <p>
+      If switching vendor is not on the table, this is the floor inside the one
+      you have.
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Provider</th>
+            <th scope="col">Cheapest model</th>
+            <th scope="col" class="num">Blended</th>
+            <th scope="col" class="num">Input</th>
+            <th scope="col" class="num">Output</th>
+          </tr>
+        </thead>
+        <tbody>
+          {perProvider.map((r) => (
+            <tr>
+              <td>
+                <a href={`/pricing/${r.provider.slug}`}>{r.provider.brand}</a>
+              </td>
+              <td><a href={`/models/${r.model.slug}`}>{r.model.name}</a></td>
+              <td class="num">{formatPrice(blendedPrice(r.model))}</td>
+              <td class="num">{formatPrice(r.model.input)}</td>
+              <td class="num">{formatPrice(r.model.output)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="sub">Questions</h2>
+    <dl class="qa">
+      {jsonLd.mainEntity.map((q) => (
+        <div>
+          <dt>{q.name}</dt>
+          <dd>{q.acceptedAnswer.text}</dd>
+        </div>
+      ))}
+    </dl>
+
+    <p class="after-table">
+      <a href="/">Price your own prompt against these models →</a>
+    </p>
+  </section>
+</Base>
+
+<style>
+  .page {
+    padding-top: 3rem;
+  }
+  .lede {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0.9rem 0 0;
+  }
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    margin: 2rem 0 2.5rem;
+    padding: 1.25rem 0;
+    border-block: 1px solid var(--rule);
+  }
+  .facts dt {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .facts dd {
+    margin: 0.3rem 0 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+  .facts__who {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--ink-faint);
+    font-family: var(--font-mono);
+  }
+  .cost {
+    font-weight: 600;
+  }
+  .sub {
+    margin-top: 3rem;
+  }
+  .note {
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    max-width: 62ch;
+    margin-top: 1rem;
+  }
+  .qa {
+    margin: 1.25rem 0 0;
+    display: grid;
+    gap: 1.25rem;
+    max-width: 68ch;
+  }
+  .qa dt {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  .qa dd {
+    margin: 0;
+    color: var(--ink-soft);
+    line-height: 1.65;
+  }
+  .after-table {
+    margin-top: 2.5rem;
+    font-size: 0.9rem;
+  }
+</style>

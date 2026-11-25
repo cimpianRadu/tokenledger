@@ -2,6 +2,7 @@ import { useMemo, useRef, useState, useDeferredValue } from 'react';
 import { encode, decode } from 'gpt-tokenizer/encoding/o200k_base';
 import { tierOf, TIER_LABEL, byRecency, type Tier } from '../lib/families';
 import { rampColor } from '../lib/ramp';
+import { driftFor } from '../lib/tokenizer';
 import { track } from '../lib/track';
 import { providerMark } from './logos';
 import type { Model, Provider } from '../lib/models';
@@ -16,22 +17,6 @@ interface Props {
 }
 
 const SAMPLE = `Summarise the following support thread and list every action item with an owner and a due date. If a date is missing, say "unspecified" rather than guessing.`;
-
-/** Non-OpenAI families have no public tokenizer; these are published ratios. */
-const DRIFT: Record<string, number> = {
-  openai: 1,
-  anthropic: 1.15,
-  gemini: 1.05,
-  deepseek: 1.08,
-  mistral: 1.1,
-  xai: 1.06,
-  cohere_chat: 1.09,
-  moonshot: 1.08,
-  perplexity: 1.05,
-  ai21: 1.1,
-  cerebras: 1.08,
-  groq: 1.08,
-};
 
 /** Output length presets — "how long will the reply be" is the input everyone
  *  gets wrong. Ratios are of the prompt length. */
@@ -168,7 +153,7 @@ export default function Ledger({ models, providers, defaults, active }: Props) {
         const model = index.get(picks[p.key]);
         if (!model) return { provider: p, model: null, cost: 0, inTok: 0, overTier: false, usedCache: false };
 
-        const inTok = Math.round(tokens.length * (DRIFT[p.key] ?? 1.1));
+        const inTok = Math.round(tokens.length * driftFor(p.key));
 
         // Apply the long-context rate when the prompt actually crosses the
         // threshold, instead of making the reader pick the right variant.
