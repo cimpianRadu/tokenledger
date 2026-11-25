@@ -11,7 +11,12 @@ npm run dev
 ```
 
 `npm run sync` scrie `src/data/models.json`. Rulează-l înainte de fiecare build —
-e singura sursă de adevăr pentru prețuri, și e cronjob-abil.
+e singura sursă de adevăr pentru prețuri. În producție rulează singur, luni
+dimineața, prin [`.github/workflows/sync-prices.yml`](.github/workflows/sync-prices.yml):
+sync, build, și commit **numai** dacă prețurile chiar s-au mișcat. Orice pas
+care distinge „upstream s-a schimbat" de „upstream s-a stricat" pică job-ul în
+loc să comită, iar un job picat lasă snapshot-ul anterior și nu deployează
+nimic.
 
 ```bash
 export ARTIFICIALANALYSIS_API_KEY=...   # cont gratuit, 1.000 requests/zi

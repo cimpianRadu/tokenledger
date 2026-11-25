@@ -1,0 +1,64 @@
+# Weekly price refresh.
+#
+# The site is static: prices live in src/data/models.json and only change when
+# something commits a new sync. Left alone it goes stale in weeks, and
+# validate.mjs hard-fails the build at 30 days — which is the right behaviour
+# and also means an unattended site eventually stops deploying at all.
+#
+# So: sync, build, and push only if the data actually moved. Every step that
+# can tell the difference between "upstream changed" and "upstream broke"
+# fails the job instead of committing:
+#
+#   npm run sync   exits 1 when a provider we expect matches no models
+#   npm run build  runs astro build + validate --dist over the output
+#
+# A failed job leaves the previous snapshot in place and deploys nothing.
+name: Weekly price sync
+
+on:
+  schedule:
+    # Mondays, 06:17 UTC. Off the hour because GitHub queues everything that
+    # asks for :00 and drops what it cannot run.
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: price-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # Benchmarks are deliberately not synced here: the free Artificial
+      # Analysis tier no longer serves the pass rates this site renders, and
+      # the script would need a key this workflow has no reason to hold.
+      - name: Sync prices
+        run: npm run sync
+
+      - name: Build and validate
+        run: npm run build
+
+      - name: Commit if the prices moved
+        run: |
+          if git diff --quiet -- src/data; then
+            echo "No price change this week."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data
+          git commit -m "Sync prices $(date -u +%Y-%m-%d)"
+          git push
