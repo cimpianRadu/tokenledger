@@ -90,9 +90,26 @@ recomandă explicit oprirea investiției de timp.
 
 | ce | de ce | stare |
 |---|---|---|
-| `RESEND_API_KEY` în `.env` | ca rapoartele și alertele să plece prin Resend, ca la celelalte proiecte. Fără ea, `notify-email.mjs` iese cu cod 2 și rutina trimite prin conectorul Gmail | de pus (aceeași cheie ca la celelalte proiecte) |
+| `RESEND_API_KEY` în `.env` | ca rapoartele și alertele să plece prin Resend. Fără ea, `notify-email.mjs` iese cu cod 2 și rutina trimite prin conectorul Gmail | de pus de Radu (cheia din proiectul vibe-marketing, care a fost oprit) |
+| expeditorul | vezi mai jos | de decis |
 | proprietate în Google Search Console pentru `pricepertoken.ai` | cererile de indexare și cifrele de impresii | de verificat la prima rulare |
 | aplicația Claude deschisă | rutinele Claude rulează doar atunci | — |
+
+### Expeditorul
+
+Regula: **nu se împrumută domeniul altui proiect.** Un raport despre
+pricepertoken.ai plecat de pe `gaseste-dentist.ro` sau de pe `vibe-market.ing`
+arată ca un email greșit, iar domeniile alea își au propria reputație de
+livrare, pe care n-are de ce s-o atingă traficul altui site.
+
+Două variante corecte, în ordinea preferinței:
+
+1. `pricepertoken.ai` verificat în contul Resend (trei înregistrări DNS pe
+   domeniu), apoi `RESEND_FROM="Price Per Token <rapoarte@pricepertoken.ai>"`.
+2. Până atunci, `RESEND_FROM` lăsat gol. Resend trimite de pe
+   `onboarding@resend.dev`, care are voie să scrie **numai** către adresa
+   titularului contului — ceea ce e exact cazul aici, singurul destinatar e
+   radu.cimpian94@gmail.com. Pentru un raport intern e suficient.
 
 Nimic altceva. Nu e nevoie de niciun cont nou, de niciun serviciu plătit și de
 niciun secret în GitHub.
