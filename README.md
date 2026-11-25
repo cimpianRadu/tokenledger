@@ -139,6 +139,25 @@ modele curente cu context ≥100K, maxim 3 per furnizor → 561 perechi.
 (numele rămâne pe pagină, pentru căutare), iar validatorul pică build-ul dacă
 scapă vreunul. `-latest` **nu** e alias: la Mistral și xAI e ID-ul principal.
 
+**Același model, doi furnizori.** Groq și Cerebras servesc greutăți deschise
+sub numele laboratorului care le-a antrenat, deci `gpt-oss-120b` e două rânduri
+la prețuri diferite — exact comparația care interesează pe o pagină de prețuri,
+deci amândouă rămân. Slug-ul se califică singur (al doilea primește prefixul
+furnizorului), numele nu, iar două pagini al căror `<title>` diferă doar prin
+cifra pe care o citează sunt două pagini pe care Google le citește ca
+duplicate. `displayName()` din `src/lib/models.ts` pune furnizorul în paranteză
+**numai** unde numele e ambiguu: „gpt-oss-120b (Groq)" merită caracterele,
+„claude-opus-5 (Anthropic)" nu.
+
+**Un furnizor căzut la zero modele oprește sync-ul.** S-a întâmplat de două
+ori: Cohere își depune modelele de chat sub `cohere_chat`, iar Groq și-a mutat
+catalogul la `groq/<laborator>/<model>` între august și noiembrie 2026. A doua
+oară regula „orice e încă imbricat e o cale de reseller" a șters furnizorul
+întreg, iar sync-ul a raportat succes — singurul rezultat inacceptabil, pentru
+că paginile dispar din sitemap la următorul deploy, iar Google le are indexate.
+Acum `sync-pricing.mjs` nu scrie nimic și iese cu cod 1, deci un cron
+săptămânal se oprește înainte de deploy și rămâne snapshot-ul anterior.
+
 ## Ce urmează
 
 1. Tokenizare reală per familie unde e posibil — ăsta e unicul lucru care te

@@ -9,6 +9,7 @@ import {
   seoTitle,
   seoDescription,
   updatedAt,
+  displayName,
 } from '../../lib/models';
 import type { Model } from '../../lib/models';
 
@@ -69,7 +70,7 @@ const jsonLd = {
 
 <Base
   title={seoTitle(
-    `${model.name} API pricing`,
+    `${displayName(model)} API pricing`,
     `${formatPrice(model.input)} in / ${formatPrice(model.output)} out per 1M`
   )}
   description={description}
@@ -79,7 +80,7 @@ const jsonLd = {
     <span class="eyebrow">
       <a href={`/pricing/${model.providerSlug}`}>{model.providerName}</a> · synced {updatedAt}
     </span>
-    <h1>{model.name}</h1>
+    <h1>{displayName(model)}</h1>
 
     <dl class="facts">
       <div>

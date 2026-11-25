@@ -6,6 +6,7 @@ import {
   formatPrice,
   formatContext,
   seoTitle,
+  displayName,
   seoDescription,
   updatedAt,
 } from '../../lib/models';
@@ -105,13 +106,17 @@ const jsonLd = {
 ---
 
 <Base
-  title={seoTitle(`${a.name} vs ${b.name}`, 'pricing compared', 'which is cheaper?')}
+  title={seoTitle(
+    `${displayName(a)} vs ${displayName(b)}`,
+    'pricing compared',
+    'which is cheaper?'
+  )}
   description={seoDescription(`${a.name} vs ${b.name} API pricing. ${verdict(a, b)} Rates per million tokens, synced ${updatedAt}.`)}
   jsonLd={jsonLd}
  breadcrumbs={[['Compare', '/compare/'], [`${a.name} vs ${b.name}`, `/compare/${pairSlug(a, b)}`]]}>
   <section class="wrap page">
     <span class="eyebrow">{a.providerName} vs {b.providerName} · synced {updatedAt}</span>
-    <h1>{a.name} vs {b.name}</h1>
+    <h1>{displayName(a)} vs {displayName(b)}</h1>
     <p class="verdict">{verdict(a, b)}</p>
 
     <div class="table-scroll">

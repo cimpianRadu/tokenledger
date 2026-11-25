@@ -52,8 +52,16 @@ const PROVIDERS = {
   groq: { name: 'Groq', brand: 'Groq', tokenizer: null, counting: 'estimated' },
 };
 
-/** Fine-tune and preview noise we never want on a pricing page. */
-const EXCLUDE = /^ft:|(^|\/)(ft:|azure|openrouter)|:free$/i;
+/**
+ * Fine-tune and preview noise we never want on a pricing page.
+ *
+ * `prompt-guard` is in here for a different reason than the rest: it is a
+ * safety classifier Groq bills per token, so it is priced, chat-mode and
+ * technically real — but nobody comparing the cost of generating text is
+ * shopping for it, and its 512-token window trips the context sanity check in
+ * `validate.mjs` on every build.
+ */
+const EXCLUDE = /^ft:|(^|\/)(ft:|azure|openrouter)|prompt-guard|:free$/i;
 
 /** Models older than this many months get dropped from the default view. */
 const PER_MILLION = 1_000_000;
@@ -122,14 +130,21 @@ for (const [id, spec] of Object.entries(raw)) {
   if (EXCLUDE.test(id)) continue;
 
   // LiteLLM prefixes most non-OpenAI ids with the provider ("mistral/large").
-  // Strip our own prefix; anything still nested is a reseller path — skip it.
+  // Strip our own prefix. What remains can still be nested, because the
+  // inference hosts file re-hosted weights under the lab that trained them:
+  // Groq's whole chat catalogue moved to `groq/openai/gpt-oss-120b` and
+  // `groq/qwen/...` between August and November 2026, and the old rule — skip
+  // anything still nested, on the assumption it was a reseller path — dropped
+  // the provider to zero models without a word. The row is real and priced by
+  // Groq, so keep the leaf as the name. Actual resellers are the prefixes
+  // EXCLUDE already covers.
   const bare = id.startsWith(`${providerKey}/`)
     ? id.slice(providerKey.length + 1)
     : id;
-  if (bare.includes('/')) continue;
+  const leaf = bare.slice(bare.lastIndexOf('/') + 1);
 
   // LiteLLM lists some models twice — bare and prefixed — at identical prices.
-  const dedupeKey = `${providerKey}|${bare}`;
+  const dedupeKey = `${providerKey}|${leaf}`;
   if (seenIds.has(dedupeKey)) continue;
   seenIds.add(dedupeKey);
 
@@ -139,8 +154,8 @@ for (const [id, spec] of Object.entries(raw)) {
 
   models.push({
     id,
-    slug: slugify(bare),
-    name: bare,
+    slug: slugify(leaf),
+    name: leaf,
     provider: providerKey,
     providerName: provider.name,
     providerSlug: provider.slug ?? slugify(providerKey),
@@ -212,6 +227,36 @@ const providers = Object.entries(PROVIDERS)
     modelCount: models.filter((m) => m.provider === key).length,
   }))
   .filter((p) => p.modelCount > 0);
+
+/**
+ * A provider that fell to zero models means upstream renamed something, not
+ * that the provider stopped selling tokens.
+ *
+ * This has now happened twice: Cohere files chat models under `cohere_chat`,
+ * and Groq moved its catalogue to `groq/<lab>/<model>`. Both times the
+ * `modelCount > 0` filter above swallowed the provider and the sync reported
+ * success, which is the one outcome that must never be quiet — the pages for
+ * that provider disappear from the sitemap on the next deploy, and Google has
+ * them indexed.
+ *
+ * So: write nothing and exit non-zero. On a weekly unattended sync that stops
+ * the pipeline before the deploy, and the previous snapshot stays in place —
+ * slightly stale prices for a few days, which `validate.mjs` escalates to a
+ * hard failure at 30 days if nobody comes to look.
+ */
+const vanished = Object.entries(PROVIDERS)
+  .filter(([key]) => !providers.some((p) => p.key === key))
+  .map(([key, p]) => `${p.name} (key \`${key}\`)`);
+
+if (vanished.length) {
+  console.error(
+    `FAIL  No models matched for: ${vanished.join(', ')}.\n` +
+      '      Upstream probably renamed the key or re-nested the model ids.\n' +
+      `      Check \`litellm_provider\` and the id shape in ${SOURCE}\n` +
+      '      models.json was left untouched.'
+  );
+  process.exit(1);
+}
 
 const today = new Date().toISOString().slice(0, 10);
 

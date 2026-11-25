@@ -57,6 +57,30 @@ export const providers: Provider[] = data.providers as Provider[];
 
 export const bySlug = new Map(models.map((m) => [m.slug, m]));
 
+/**
+ * Model names are not unique across providers.
+ *
+ * Inference hosts serve other labs' open weights under the original name, so
+ * `gpt-oss-120b` is a Groq row and a Cerebras row — same weights, different
+ * price, two pages. Slugs already disambiguate (the second one takes a
+ * provider prefix), but names do not, and two pages whose <title> differs only
+ * by the figure it quotes are two pages a search engine reads as duplicates.
+ *
+ * So qualify with the provider exactly where the name is ambiguous, and leave
+ * the other ~250 names untouched: "gpt-oss-120b (Groq)" earns its length,
+ * "claude-opus-5 (Anthropic)" would just spend title characters saying nothing.
+ */
+const nameFrequency = new Map<string, number>();
+for (const m of models) {
+  nameFrequency.set(m.name, (nameFrequency.get(m.name) ?? 0) + 1);
+}
+
+export function displayName(m: Model): string {
+  return (nameFrequency.get(m.name) ?? 0) > 1
+    ? `${m.name} (${m.providerName})`
+    : m.name;
+}
+
 export function modelsFor(providerKey: string): Model[] {
   return models.filter((m) => m.provider === providerKey);
 }
