@@ -245,6 +245,7 @@ const KEYWORD_TARGETS = [
   ['token-counter/openai/index.html', 'openai token counter'],
   ['token-counter/anthropic/index.html', 'claude token counter'],
   ['token-counter/gemini/index.html', 'gemini token counter'],
+  ['what-is-a-token/index.html', 'what is a token in ai'],
 ];
 
 /**

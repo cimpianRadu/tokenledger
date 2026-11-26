@@ -1,0 +1,513 @@
+---
+import { encode, decode } from 'gpt-tokenizer/encoding/o200k_base';
+import Base from '../layouts/Base.astro';
+import Ledger from '../components/Ledger.tsx';
+import {
+  models,
+  orderedProviders,
+  modelsFor,
+  defaultModelFor,
+  tierOf,
+  DEFAULT_ACTIVE,
+  seoTitle,
+  seoDescription,
+  updatedAt,
+} from '../lib/models';
+import { driftFor, REFERENCE_TEXT } from '../lib/tokenizer';
+
+/**
+ * Every figure on this page is either a list price from `models.json` or the
+ * output of OpenAI's published encoder run at build time. Nothing is quoted
+ * from elsewhere — the "a token is 0.75 words" line that every explainer
+ * repeats is exactly the kind of number this site measures instead.
+ */
+const ids = encode(REFERENCE_TEXT);
+const pieces = ids.map((t) => {
+  try {
+    return decode([t]);
+  } catch {
+    return '�';
+  }
+});
+const refWords = REFERENCE_TEXT.trim().split(/\s+/).length;
+const refChars = REFERENCE_TEXT.length;
+const baseTokens = ids.length;
+const tokensPerWord = baseTokens / refWords;
+const charsPerToken = refChars / baseTokens;
+/** Rounded to the nearest ten — a figure like 1,317 would read as a precision
+ *  a single paragraph of prose does not have. */
+const wordsPer1000 = Math.round(1000 / tokensPerWord / 10) * 10;
+/** Words that went through the encoder as more than one piece. */
+const splitWords = REFERENCE_TEXT.split(/\s+/)
+  .map((w) => w.replace(/[^A-Za-z]/g, ''))
+  .filter((w) => w && encode(' ' + w).length > 1);
+const splitPieces = splitWords.slice(0, 3).map((word) => ({
+  word,
+  parts: encode(' ' + word).map((t) => decode([t]).replace(/^ /, '␣')),
+}));
+
+/**
+ * Density by kind of text. The samples are printed on the page in full, so the
+ * reader can see exactly what was counted — a ratio measured on hidden input is
+ * a claim, not a measurement. Frozen for the same reason as REFERENCE_TEXT.
+ */
+const SAMPLES = [
+  { kind: 'English prose', text: REFERENCE_TEXT },
+  {
+    kind: 'Romanian prose',
+    text: 'Un token este unitatea în care te facturează un model de limbaj. Nu este un cuvânt și nici un caracter.',
+  },
+  {
+    kind: 'JavaScript',
+    text: 'function costOf(tokens, ratePerMillion) {\n  return (tokens * ratePerMillion) / 1_000_000;\n}',
+  },
+  {
+    kind: 'JSON',
+    text: '{"role":"user","content":"Count the tokens in this request.","max_tokens":256}',
+  },
+];
+const density = SAMPLES.map((s) => {
+  const t = encode(s.text).length;
+  return { ...s, tokens: t, chars: s.text.length, cpt: s.text.length / t };
+});
+
+/** Same pool the token-counter index quotes against: current, paid, not
+ *  deprecated — a rate someone can still choose. */
+function poolFor(key: string) {
+  const list = modelsFor(key).filter((m) => m.input > 0 && !m.deprecatedOn);
+  const current = list.filter((m) => tierOf(m) === 'current');
+  return current.length ? current : list;
+}
+
+const families = orderedProviders.map((p) => {
+  const drift = driftFor(p.key);
+  const tokens = Math.round(baseTokens * drift);
+  return {
+    provider: p,
+    drift,
+    tokens,
+    wordsPer1000: Math.round(((1000 / tokens) * refWords) / 10) * 10,
+  };
+});
+
+const cost = orderedProviders
+  .map((p) => {
+    const pool = poolFor(p.key);
+    if (!pool.length) return null;
+    const cheapest = pool.reduce((lo, m) => (m.input < lo.input ? m : lo), pool[0]);
+    return { provider: p, model: cheapest };
+  })
+  .filter((r): r is NonNullable<typeof r> => r !== null)
+  .sort((a, b) => a.model.input - b.model.input);
+
+const per1k = (ratePerMillion: number) => ratePerMillion / 1000;
+/** Per-thousand figures run to five decimals; strip the zeros that would
+ *  otherwise suggest precision past the list rate. */
+function money(v: number): string {
+  if (v >= 1) return `$${v.toFixed(2)}`;
+  if (v >= 0.01) return `$${v.toFixed(3)}`;
+  return `$${v.toFixed(6).replace(/0+$/, '')}`;
+}
+
+/** Output-to-input price ratio across current paid models, as a median so one
+ *  oddly priced model does not move it. */
+const ratios = models
+  .filter((m) => m.input > 0 && m.output > 0 && !m.deprecatedOn && tierOf(m) === 'current')
+  .map((m) => m.output / m.input)
+  .sort((a, b) => a - b);
+const medianRatio = ratios.length ? ratios[Math.floor(ratios.length / 2)] : null;
+const pricedCount = ratios.length;
+
+const cheapestAll = cost[0];
+const dearestCheap = cost[cost.length - 1];
+
+const defaults = Object.fromEntries(
+  orderedProviders
+    .map((p) => [p.key, defaultModelFor(p.key)?.slug])
+    .filter(([, slug]) => slug)
+);
+
+const exactCount = models.filter((m) => m.counting === 'exact').length;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'What is a token in AI?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `A token is the piece of text a language model reads, writes and bills in. Common words are one token, rarer words split into several, and spaces and punctuation count too. On OpenAI's published encoder, a ${refWords}-word paragraph of English prose is ${baseTokens} tokens — ${tokensPerWord.toFixed(2)} tokens per word, or one token per ${charsPerToken.toFixed(1)} characters.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How many words is 1,000 tokens?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `About ${wordsPer1000.toLocaleString()} words of English prose on OpenAI's encoder, measured, not quoted. Families that tokenize denser fit fewer words in the same 1,000 tokens, and code, JSON and other languages fit fewer still.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How much do 1,000 tokens cost?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `From ${money(per1k(cheapestAll.model.input))} for input on ${cheapestAll.model.name}, the cheapest current model tracked here, at list prices synced ${updatedAt}. Output tokens are billed separately and cost more — ${money(per1k(cheapestAll.model.output))} per thousand on the same model.`,
+      },
+    },
+    ...(medianRatio
+      ? [
+          {
+            '@type': 'Question',
+            name: 'Do input and output tokens cost the same?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: `Rarely. Across the ${pricedCount} current paid models tracked here, the median output token costs ${medianRatio.toFixed(1)}× an input token. A request that writes long answers is priced mostly by its output.`,
+            },
+          },
+        ]
+      : []),
+  ],
+};
+---
+
+<Base
+  title={seoTitle('What is a token in AI?', 'measured, with live prices')}
+  description={seoDescription(`A token is the unit an AI model bills you in. See a real paragraph split into tokens, how many words 1,000 tokens is, and what 1,000 tokens cost at each provider today.`)}
+  jsonLd={jsonLd}
+  breadcrumbs={[['What is a token?', '/what-is-a-token']]}
+>
+  <section class="wrap page">
+    <span class="eyebrow"
+      >Explainer · {orderedProviders.length} providers · prices synced {updatedAt}</span
+    >
+    <h1>What is a token in AI?</h1>
+    <p class="lede">
+      A token is the piece of text a language model reads, writes and charges
+      you for. It is not a word and not a character. Here is a real paragraph
+      cut into tokens by OpenAI's published encoder, then what that means for
+      word counts and for your bill.
+    </p>
+
+    <div class="split">
+      <div class="split__head">
+        <span>One paragraph, {baseTokens} tokens</span>
+        <span class="badge badge--exact">exact</span>
+        <span class="split__note mono">o200k_base · OpenAI</span>
+      </div>
+      <div class="split__body" aria-label={REFERENCE_TEXT}>
+        {pieces.map((piece, i) => (
+          <span class="split__tok" data-alt={i % 2} aria-hidden="true">{piece}</span>
+        ))}
+      </div>
+    </div>
+
+    <dl class="facts">
+      <div>
+        <dt>Words</dt>
+        <dd class="mono">{refWords}</dd>
+      </div>
+      <div>
+        <dt>Characters</dt>
+        <dd class="mono">{refChars}</dd>
+      </div>
+      <div>
+        <dt>Tokens</dt>
+        <dd class="mono">{baseTokens}</dd>
+        <dd class="facts__who"><span class="badge badge--exact">exact</span></dd>
+      </div>
+      <div>
+        <dt>Tokens per word</dt>
+        <dd class="mono">{tokensPerWord.toFixed(2)}</dd>
+      </div>
+      <div>
+        <dt>1,000 tokens</dt>
+        <dd class="mono">≈ {wordsPer1000.toLocaleString()}</dd>
+        <dd class="facts__who">words of prose</dd>
+      </div>
+    </dl>
+
+    <p>
+      Each shaded block above is one token. Most begin with the space before
+      the word, which is why a token count runs higher than a word count even
+      for plain English. Short, common words go through whole.
+      {splitPieces.length > 0 && (
+        <>
+          {' '}Rarer ones do not. In this paragraph{' '}
+          {splitPieces.map((s, i, a) => (
+            <><em>{s.word}</em> went through as {s.parts.length} tokens, {s.parts.map((p, j) => (<><code class="piece">{p}</code>{j < s.parts.length - 1 ? ' + ' : ''}</>))}{i < a.length - 2 ? '; ' : i === a.length - 2 ? '; and ' : '.'}</>
+          ))}
+        </>
+      )}
+      {' '}Punctuation is usually a token of its own.
+    </p>
+
+    <h2 class="sub">Count your own text</h2>
+    <p>
+      The same encoder, running in your browser. Paste anything — nothing is
+      uploaded — and open “Show the token split” to see where it cuts.
+    </p>
+    <Ledger
+      client:load
+      models={models}
+      providers={orderedProviders}
+      defaults={defaults}
+      active={DEFAULT_ACTIVE}
+    />
+
+    <h2 class="sub">The kind of text changes the count</h2>
+    <p>
+      A word count is a poor guide once the text is not English prose. The
+      samples below are counted at build time on the same encoder, and the
+      text is shown in full so you can check what was measured: the fewer
+      characters per token, the more the same length of text costs.
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Text</th>
+            <th scope="col">Sample</th>
+            <th scope="col" class="num">Characters</th>
+            <th scope="col" class="num">Tokens</th>
+            <th scope="col" class="num">Chars / token</th>
+          </tr>
+        </thead>
+        <tbody>
+          {density.map((d) => (
+            <tr>
+              <td>{d.kind}</td>
+              <td><code class="sample">{d.text}</code></td>
+              <td class="num">{d.chars}</td>
+              <td class="num">
+                {d.tokens} <span class="badge badge--exact">exact</span>
+              </td>
+              <td class="num mono">{d.cpt.toFixed(1)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="sub">Every model family counts differently</h2>
+    <p>
+      A tokenizer belongs to a model, not to a standard. Only OpenAI publishes
+      one, so its {exactCount} models are counted exactly. For every other
+      family the count is OpenAI's, multiplied by the ratio that provider
+      publishes for its own tokenizer — and labelled <em>estimated</em>.
+      Same {refWords}-word paragraph, every family:
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Family</th>
+            <th scope="col">Counting</th>
+            <th scope="col" class="num">Ratio</th>
+            <th scope="col" class="num">Tokens</th>
+            <th scope="col" class="num">Words in 1,000 tokens</th>
+          </tr>
+        </thead>
+        <tbody>
+          {families.map((f) => (
+            <tr>
+              <td>
+                <a href={`/token-counter/${f.provider.slug}`}>{f.provider.brand}</a>
+              </td>
+              <td>
+                <span class={`badge badge--${f.provider.counting}`}>
+                  {f.provider.counting}
+                </span>
+              </td>
+              <td class="num mono">×{f.drift.toFixed(2)}</td>
+              <td class="num">{f.tokens}</td>
+              <td class="num">≈ {f.wordsPer1000.toLocaleString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      Estimated counts are good for choosing a model and sizing a budget, and
+      roughly ±10% — not for reconciling an invoice. The
+      <a href="/methodology">methodology</a> says where each ratio comes from.
+    </p>
+
+    <h2 class="sub">What 1,000 tokens cost today</h2>
+    <p>
+      The cheapest current model at each provider, at list price, per thousand
+      tokens. Input is what you send; output is what the model writes back, and
+      it is billed separately{medianRatio
+        ? ` — the median output token across ${pricedCount} current models costs ${medianRatio.toFixed(1)}× an input token`
+        : ''}.
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Provider</th>
+            <th scope="col">Cheapest current model</th>
+            <th scope="col" class="num">1K input</th>
+            <th scope="col" class="num">1K output</th>
+          </tr>
+        </thead>
+        <tbody>
+          {cost.map((r) => (
+            <tr>
+              <td><a href={`/pricing/${r.provider.slug}`}>{r.provider.brand}</a></td>
+              <td><a href={`/models/${r.model.slug}`}>{r.model.name}</a></td>
+              <td class="num">{money(per1k(r.model.input))}</td>
+              <td class="num">{money(per1k(r.model.output))}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      From {money(per1k(cheapestAll.model.input))} to
+      {' '}{money(per1k(dearestCheap.model.input))} per thousand input tokens,
+      and that is only the floor at each provider. Flagship models cost more;
+      the <a href="/cheapest">cheapest LLM API</a> page ranks all of them.
+    </p>
+
+    <h2 class="sub">Questions</h2>
+    <dl class="qa">
+      {jsonLd.mainEntity.map((q) => (
+        <div>
+          <dt>{q.name}</dt>
+          <dd>{q.acceptedAnswer.text}</dd>
+        </div>
+      ))}
+    </dl>
+
+    <p class="after-table">
+      <a href="/token-counter/">Token counter for each provider →</a>
+    </p>
+  </section>
+</Base>
+
+<style>
+  .page {
+    padding-top: 3rem;
+  }
+  .lede {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0.9rem 0 2rem;
+  }
+  .split {
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--paper-raised);
+    padding: 1rem;
+  }
+  .split__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+  .split__note {
+    margin-left: auto;
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--ink-faint);
+  }
+  .split__body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+  .split__tok {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    padding: 0.1em 0.28em;
+    border-radius: 2px;
+    white-space: pre;
+    color: var(--ink);
+  }
+  .split__tok[data-alt='0'] {
+    background: color-mix(in oklab, var(--ink) 8%, transparent);
+  }
+  .split__tok[data-alt='1'] {
+    background: color-mix(in oklab, var(--ink) 14%, transparent);
+  }
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem 2.5rem;
+    margin: 2rem 0;
+    padding: 1.25rem 0;
+    border-block: 1px solid var(--rule);
+  }
+  .facts dt {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .facts dd {
+    margin: 0.3rem 0 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+  .facts__who {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--ink-faint);
+    font-family: var(--font-mono);
+  }
+  .piece {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    padding: 0.05em 0.25em;
+    border-radius: 2px;
+    background: color-mix(in oklab, var(--ink) 10%, transparent);
+  }
+  .sample {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    display: block;
+    min-width: 16rem;
+    max-width: 30rem;
+    color: var(--ink-soft);
+  }
+  .sub {
+    margin-top: 3rem;
+  }
+  .note {
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    max-width: 62ch;
+    margin-top: 1rem;
+  }
+  .qa {
+    margin: 1.25rem 0 0;
+    display: grid;
+    gap: 1.25rem;
+    max-width: 68ch;
+  }
+  .qa dt {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  .qa dd {
+    margin: 0;
+    color: var(--ink-soft);
+    line-height: 1.65;
+  }
+  .after-table {
+    margin-top: 2.5rem;
+    font-size: 0.9rem;
+  }
+</style>
