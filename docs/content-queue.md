@@ -29,7 +29,7 @@ Formatul unei linii:
 
 ## Coadă
 
-- [ ] /what-is-a-token — `what is a token in ai` 4.400/lună (KD 12, măsurat 2026-11) · [explainer] · ce e un token, cu numărătoarea live din tokenizer, raportul real pe familie și cât costă 1.000 de tokeni azi la fiecare furnizor. Niciunul din primele 8 rezultate n-are pagină dedicată.
+- [x] 2026-11-26 /what-is-a-token — `what is a token in ai` 4.400/lună (KD 12, măsurat 2026-11) · [explainer] · ce e un token, cu numărătoarea live din tokenizer, raportul real pe familie și cât costă 1.000 de tokeni azi la fiecare furnizor. Niciunul din primele 8 rezultate n-are pagină dedicată. → https://pricepertoken.ai/what-is-a-token/
 - [ ] /tokens-to-words — `tokens to words` 110/lună (KD 1, măsurat 2026-08) + `how many tokens is 1000 words` · [tool] · convertor în ambele sensuri pe tokenizer-ul real, cu tabel pe familii și notă că proza, codul și diacriticele se numără diferit.
 - [ ] /pricing-history — `llm price history`, `cost per token` 320/lună (+255% an/an, măsurat 2026-08) · [date] · evoluția prețurilor din `src/data/history.json`, care crește singur cu fiecare sync lunar. E singura pagină pe care nimeni n-o poate copia din fișierul public LiteLLM.
 - [ ] /pricing/openai/calculator — `openai api pricing calculator` 720/lună (vârf 3.600 în iulie 2026, măsurat 2026-08) · [tool] · calculator de cost pe volum lunar pentru modelele OpenAI, pe prețurile curente, cu cache-ul separat.
@@ -41,3 +41,4 @@ Formatul unei linii:
 | data | ce s-a publicat | indexare | note |
 |---|---|---|---|
 | 2026-11-25 | /token-counter/ + 12 pagini pe furnizor, /cheapest | IndexNow 855 URL | lansate din lucrul nepublicat din august |
+| 2026-11-26 | /what-is-a-token/ (`what is a token in ai`, 4.400/lună) | IndexNow 1 URL (200) · GSC: „Indexing requested” | paragraf de referință despărțit cu o200k la build, densitate pe 4 mostre afișate, raport pe 12 familii cu badge, cost 1K tokeni pe furnizor; link din footer și /token-counter/. Serverul de dev a fost refuzat, verificat pe live la 375px: fără scroll orizontal |
